@@ -4,21 +4,21 @@
 #define GPIOB_ADDR      0x40020400
 #define I2C1_ADDR       0x40005400
 
-volatile uint32_t *GPIOB_MODER   = (volatile uint32_t *)(GPIOB_ADDR + 0x00);
-volatile uint32_t *GPIOB_OTYPER  = (volatile uint32_t *)(GPIOB_ADDR + 0x04);
-volatile uint32_t *GPIOB_OSPEEDR = (volatile uint32_t *)(GPIOB_ADDR + 0x08);
-volatile uint32_t *GPIOB_PUPDR   = (volatile uint32_t *)(GPIOB_ADDR + 0x0C);
-volatile uint32_t *GPIOB_AFRL    = (volatile uint32_t *)(GPIOB_ADDR + 0x20);
-volatile uint32_t *GPIOB_AFRH    = (volatile uint32_t *)(GPIOB_ADDR + 0x24);
+static volatile uint32_t *GPIOB_MODER   = (volatile uint32_t *)(GPIOB_ADDR + 0x00);
+static volatile uint32_t *GPIOB_OTYPER  = (volatile uint32_t *)(GPIOB_ADDR + 0x04);
+static volatile uint32_t *GPIOB_OSPEEDR = (volatile uint32_t *)(GPIOB_ADDR + 0x08);
+static volatile uint32_t *GPIOB_PUPDR   = (volatile uint32_t *)(GPIOB_ADDR + 0x0C);
+static volatile uint32_t *GPIOB_AFRL    = (volatile uint32_t *)(GPIOB_ADDR + 0x20);
+static volatile uint32_t *GPIOB_AFRH    = (volatile uint32_t *)(GPIOB_ADDR + 0x24);
 
-volatile uint32_t *I2C1_CR1      = (volatile uint32_t *)(I2C1_ADDR + 0x00);
-volatile uint32_t *I2C1_CR2      = (volatile uint32_t *)(I2C1_ADDR + 0x04);
-volatile uint32_t *I2C1_OAR1     = (volatile uint32_t *)(I2C1_ADDR + 0x08);
-volatile uint32_t *I2C1_DR       = (volatile uint32_t *)(I2C1_ADDR + 0x10);
-volatile uint32_t *I2C1_SR1      = (volatile uint32_t *)(I2C1_ADDR + 0x14);
-volatile uint32_t *I2C1_SR2      = (volatile uint32_t *)(I2C1_ADDR + 0x18);
-volatile uint32_t *I2C1_CCR      = (volatile uint32_t *)(I2C1_ADDR + 0x1C);
-volatile uint32_t *I2C1_TRISE    = (volatile uint32_t *)(I2C1_ADDR + 0x20);
+static volatile uint32_t *I2C1_CR1      = (volatile uint32_t *)(I2C1_ADDR + 0x00);
+static volatile uint32_t *I2C1_CR2      = (volatile uint32_t *)(I2C1_ADDR + 0x04);
+static volatile uint32_t *I2C1_OAR1     = (volatile uint32_t *)(I2C1_ADDR + 0x08);
+static volatile uint32_t *I2C1_DR       = (volatile uint32_t *)(I2C1_ADDR + 0x10);
+static volatile uint32_t *I2C1_SR1      = (volatile uint32_t *)(I2C1_ADDR + 0x14);
+static volatile uint32_t *I2C1_SR2      = (volatile uint32_t *)(I2C1_ADDR + 0x18);
+static volatile uint32_t *I2C1_CCR      = (volatile uint32_t *)(I2C1_ADDR + 0x1C);
+static volatile uint32_t *I2C1_TRISE    = (volatile uint32_t *)(I2C1_ADDR + 0x20);
 
 #define I2C_CR1_PE      (1 << 0)
 #define I2C_CR1_START   (1 << 8)

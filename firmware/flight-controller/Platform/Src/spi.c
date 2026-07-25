@@ -4,21 +4,21 @@
 #define GPIOA_ADDR      0x40020000
 #define SPI1_ADDR       0x40013000
 
-volatile uint32_t *GPIOA_MODER   = (volatile uint32_t *)(GPIOA_ADDR + 0x00);
-volatile uint32_t *GPIOA_OTYPER  = (volatile uint32_t *)(GPIOA_ADDR + 0x04);
-volatile uint32_t *GPIOA_OSPEEDR = (volatile uint32_t *)(GPIOA_ADDR + 0x08);
-volatile uint32_t *GPIOA_PUPDR   = (volatile uint32_t *)(GPIOA_ADDR + 0x0C);
-volatile uint32_t *GPIOA_BSRR    = (volatile uint32_t *)(GPIOA_ADDR + 0x18);
-volatile uint32_t *GPIOA_AFRL    = (volatile uint32_t *)(GPIOA_ADDR + 0x20);
-volatile uint32_t *GPIOA_AFRH    = (volatile uint32_t *)(GPIOA_ADDR + 0x24);
+static volatile uint32_t *GPIOA_MODER   = (volatile uint32_t *)(GPIOA_ADDR + 0x00);
+static volatile uint32_t *GPIOA_OTYPER  = (volatile uint32_t *)(GPIOA_ADDR + 0x04);
+static volatile uint32_t *GPIOA_OSPEEDR = (volatile uint32_t *)(GPIOA_ADDR + 0x08);
+static volatile uint32_t *GPIOA_PUPDR   = (volatile uint32_t *)(GPIOA_ADDR + 0x0C);
+static volatile uint32_t *GPIOA_BSRR    = (volatile uint32_t *)(GPIOA_ADDR + 0x18);
+static volatile uint32_t *GPIOA_AFRL    = (volatile uint32_t *)(GPIOA_ADDR + 0x20);
+static volatile uint32_t *GPIOA_AFRH    = (volatile uint32_t *)(GPIOA_ADDR + 0x24);
 
-volatile uint32_t *SPI1_CR1      = (volatile uint32_t *)(SPI1_ADDR + 0x00);
-volatile uint32_t *SPI1_CR2      = (volatile uint32_t *)(SPI1_ADDR + 0x04);
-volatile uint32_t *SPI1_SR       = (volatile uint32_t *)(SPI1_ADDR + 0x08);
-volatile uint32_t *SPI1_DR       = (volatile uint32_t *)(SPI1_ADDR + 0x0C);
-volatile uint32_t *SPI1_CRCPR    = (volatile uint32_t *)(SPI1_ADDR + 0x10);
-volatile uint32_t *SPI1_RXCRCR   = (volatile uint32_t *)(SPI1_ADDR + 0x14);
-volatile uint32_t *SPI1_TXCRCR   = (volatile uint32_t *)(SPI1_ADDR + 0x18);
+static volatile uint32_t *SPI1_CR1      = (volatile uint32_t *)(SPI1_ADDR + 0x00);
+static volatile uint32_t *SPI1_CR2      = (volatile uint32_t *)(SPI1_ADDR + 0x04);
+static volatile uint32_t *SPI1_SR       = (volatile uint32_t *)(SPI1_ADDR + 0x08);
+static volatile uint32_t *SPI1_DR       = (volatile uint32_t *)(SPI1_ADDR + 0x0C);
+static volatile uint32_t *SPI1_CRCPR    = (volatile uint32_t *)(SPI1_ADDR + 0x10);
+static volatile uint32_t *SPI1_RXCRCR   = (volatile uint32_t *)(SPI1_ADDR + 0x14);
+static volatile uint32_t *SPI1_TXCRCR   = (volatile uint32_t *)(SPI1_ADDR + 0x18);
 
 #define SPI_CS_PIN          4
 #define SPI_SCK_PIN         5

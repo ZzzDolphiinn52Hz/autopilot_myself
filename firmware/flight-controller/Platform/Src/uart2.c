@@ -4,18 +4,18 @@
 #define GPIOA_ADDR      0x40020000
 #define USART2_ADDR     0x40004400
 
-volatile uint32_t *GPIOA_MODER   = (volatile uint32_t *)(GPIOA_ADDR + 0x00);
-volatile uint32_t *GPIOA_OTYPER  = (volatile uint32_t *)(GPIOA_ADDR + 0x04);
-volatile uint32_t *GPIOA_OSPEEDR = (volatile uint32_t *)(GPIOA_ADDR + 0x08);
-volatile uint32_t *GPIOA_PUPDR   = (volatile uint32_t *)(GPIOA_ADDR + 0x0C);
-volatile uint32_t *GPIOA_AFRL    = (volatile uint32_t *)(GPIOA_ADDR + 0x20);
+static volatile uint32_t *GPIOA_MODER   = (volatile uint32_t *)(GPIOA_ADDR + 0x00);
+static volatile uint32_t *GPIOA_OTYPER  = (volatile uint32_t *)(GPIOA_ADDR + 0x04);
+static volatile uint32_t *GPIOA_OSPEEDR = (volatile uint32_t *)(GPIOA_ADDR + 0x08);
+static volatile uint32_t *GPIOA_PUPDR   = (volatile uint32_t *)(GPIOA_ADDR + 0x0C);
+static volatile uint32_t *GPIOA_AFRL    = (volatile uint32_t *)(GPIOA_ADDR + 0x20);
 
-volatile uint32_t *USART2_SR     = (volatile uint32_t *)(USART2_ADDR + 0x00);
-volatile uint32_t *USART2_DR     = (volatile uint32_t *)(USART2_ADDR + 0x04);
-volatile uint32_t *USART2_BRR    = (volatile uint32_t *)(USART2_ADDR + 0x08);
-volatile uint32_t *USART2_CR1    = (volatile uint32_t *)(USART2_ADDR + 0x0C);
-volatile uint32_t *USART2_CR2    = (volatile uint32_t *)(USART2_ADDR + 0x10);
-volatile uint32_t *USART2_CR3    = (volatile uint32_t *)(USART2_ADDR + 0x14);
+static volatile uint32_t *USART2_SR     = (volatile uint32_t *)(USART2_ADDR + 0x00);
+static volatile uint32_t *USART2_DR     = (volatile uint32_t *)(USART2_ADDR + 0x04);
+static volatile uint32_t *USART2_BRR    = (volatile uint32_t *)(USART2_ADDR + 0x08);
+static volatile uint32_t *USART2_CR1    = (volatile uint32_t *)(USART2_ADDR + 0x0C);
+static volatile uint32_t *USART2_CR2    = (volatile uint32_t *)(USART2_ADDR + 0x10);
+static volatile uint32_t *USART2_CR3    = (volatile uint32_t *)(USART2_ADDR + 0x14);
 
 #define USART_SR_TXE    (1 << 7)
 #define USART_SR_TC     (1 << 6)
