@@ -19,6 +19,20 @@ volatile int16_t debug_icm42688_gyro_z;
 volatile int16_t debug_icm42688_temp;
 volatile uint8_t debug_icm42688_who_am_i;
 
+#define GPIOA_ADDR      0x40020000
+static volatile uint32_t *GPIOA_BSRR = (volatile uint32_t *)(GPIOA_ADDR + 0x18);
+#define ICM42688_CS_PIN 4
+
+static void ICM42688_CS_Low(void)
+{
+    *GPIOA_BSRR = (1 << (ICM42688_CS_PIN + 16));
+}
+
+static void ICM42688_CS_High(void)
+{
+    *GPIOA_BSRR = (1 << ICM42688_CS_PIN);
+}
+
 static ICM42688_StatusTypeDef ICM42688_ConvertSPIStatus(SPI_Status_t status)
 {
     if (status == SPI_OK)
@@ -36,27 +50,60 @@ static ICM42688_StatusTypeDef ICM42688_ConvertSPIStatus(SPI_Status_t status)
 
 static ICM42688_StatusTypeDef ICM42688_WriteReg(uint8_t reg, uint8_t data)
 {
-    return ICM42688_ConvertSPIStatus(SPI_mem_write((uint8_t)(reg | ICM42688_SPI_WRITE_BIT), &data, 1));
+    SPI_Status_t status;
+    uint8_t tx_reg = reg | ICM42688_SPI_WRITE_BIT;
+
+    ICM42688_CS_Low();
+    status = SPI_transfer_byte(tx_reg, 0);
+    if (status == SPI_OK)
+    {
+        status = SPI_transmit(&data, 1);
+    }
+    ICM42688_CS_High();
+
+    return ICM42688_ConvertSPIStatus(status);
 }
 
 static ICM42688_StatusTypeDef ICM42688_ReadReg(uint8_t reg, uint8_t *data)
 {
+    SPI_Status_t status;
+    uint8_t tx_reg = reg | ICM42688_SPI_READ_BIT;
+
     if (data == 0)
     {
         return ICM42688_ERROR;
     }
 
-    return ICM42688_ConvertSPIStatus(SPI_mem_read((uint8_t)(reg | ICM42688_SPI_READ_BIT), data, 1));
+    ICM42688_CS_Low();
+    status = SPI_transfer_byte(tx_reg, 0);
+    if (status == SPI_OK)
+    {
+        status = SPI_receive(data, 1);
+    }
+    ICM42688_CS_High();
+
+    return ICM42688_ConvertSPIStatus(status);
 }
 
 static ICM42688_StatusTypeDef ICM42688_ReadRegs(uint8_t reg, uint8_t *data, uint8_t len)
 {
+    SPI_Status_t status;
+    uint8_t tx_reg = reg | ICM42688_SPI_READ_BIT;
+
     if ((data == 0) || (len == 0))
     {
         return ICM42688_ERROR;
     }
 
-    return ICM42688_ConvertSPIStatus(SPI_mem_read((uint8_t)(reg | ICM42688_SPI_READ_BIT), data, len));
+    ICM42688_CS_Low();
+    status = SPI_transfer_byte(tx_reg, 0);
+    if (status == SPI_OK)
+    {
+        status = SPI_receive(data, len);
+    }
+    ICM42688_CS_High();
+
+    return ICM42688_ConvertSPIStatus(status);
 }
 
 static ICM42688_StatusTypeDef ICM42688_SelectBank(uint8_t bank)

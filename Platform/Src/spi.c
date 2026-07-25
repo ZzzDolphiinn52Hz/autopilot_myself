@@ -49,8 +49,6 @@ volatile uint32_t *SPI1_TXCRCR   = (volatile uint32_t *)(SPI1_ADDR + 0x18);
 static SPI_Status_t spi_wait_flag_set(volatile uint32_t *reg, uint32_t flag);
 static SPI_Status_t spi_wait_flag_reset(volatile uint32_t *reg, uint32_t flag);
 static void spi_clear_ovr_flag(void);
-void SPI_cs_low(void);
-void SPI_cs_high(void);
 
 SPI_Status_t SPI_transfer_byte(uint8_t tx_data, uint8_t *rx_data);
 
@@ -93,8 +91,6 @@ void SPI_init(void)
     clock_enable_AHB1(GPIOA_peripheral);
     clock_enable_APB2(SPI1_peripheral);
 
-    SPI_cs_high();
-
     *GPIOA_MODER &= ~((0b11 << (SPI_CS_PIN * 2)) | (0b11 << (SPI_SCK_PIN * 2)) | (0b11 << (SPI_MISO_PIN * 2)) | (0b11 << (SPI_MOSI_PIN * 2)));
     *GPIOA_MODER |=  ((0b01 << (SPI_CS_PIN * 2)) | (0b10 << (SPI_SCK_PIN * 2)) | (0b10 << (SPI_MISO_PIN * 2)) | (0b10 << (SPI_MOSI_PIN * 2)));
     // cs out, sck_miso_mosi alternate
@@ -134,16 +130,6 @@ void SPI_init(void)
 
     *SPI1_CR1 |= SPI_CR1_SPE; // on spi
 } // cau hinh
-
-void SPI_cs_low(void)
-{
-    *GPIOA_BSRR = (1 << (SPI_CS_PIN + 16));
-} // cs reset
-
-void SPI_cs_high(void)
-{
-    *GPIOA_BSRR = (1 << SPI_CS_PIN);
-} // cs set
 
 SPI_Status_t SPI_transfer_byte(uint8_t tx_data, uint8_t *rx_data)
 {
@@ -251,60 +237,3 @@ SPI_Status_t SPI_transmit_receive(const uint8_t *tx_data, uint8_t *rx_data, uint
     return SPI_OK;
 }
 
-SPI_Status_t SPI_mem_write(uint8_t reg_addr, const uint8_t *data, uint16_t len)
-{
-    SPI_Status_t status;
-
-    if ((data == 0) && (len > 0))
-    {
-        return SPI_ERROR;
-    }
-
-    SPI_cs_low();
-
-    status = SPI_transfer_byte(reg_addr, 0);
-    if (status != SPI_OK)
-    {
-        SPI_cs_high();
-        return status;
-    }
-
-    status = SPI_transmit(data, len);
-    if (status != SPI_OK)
-    {
-        SPI_cs_high();
-        return status;
-    }
-
-    SPI_cs_high();
-    return SPI_OK;
-}
-
-SPI_Status_t SPI_mem_read(uint8_t reg_addr, uint8_t *data, uint16_t len)
-{
-    SPI_Status_t status;
-
-    if ((data == 0) || (len == 0))
-    {
-        return SPI_ERROR;
-    }
-
-    SPI_cs_low();
-
-    status = SPI_transfer_byte(reg_addr, 0);
-    if (status != SPI_OK)
-    {
-        SPI_cs_high();
-        return status;
-    }
-
-    status = SPI_receive(data, len);
-    if (status != SPI_OK)
-    {
-        SPI_cs_high();
-        return status;
-    }
-
-    SPI_cs_high();
-    return SPI_OK;
-}
