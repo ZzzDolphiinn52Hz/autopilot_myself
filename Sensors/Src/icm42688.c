@@ -2,7 +2,7 @@
 #include "delay.h"
 #include "spi.h"
 
-#define ICM42688_BANK0                 0x00
+#define ICM42688_BANK0                0x00
 #define ICM42688_SOFT_RESET           0x01
 #define ICM42688_PWR_ACCEL_GYRO_LN    0x0F
 #define ICM42688_FILTER_BW_ODR_DIV_4  0x11
