@@ -1,0 +1,178 @@
+name: Bug report
+description: Báo lỗi firmware, sensor, motor, build hoặc hardware integration
+title: "[BUG] "
+labels:
+  - "bug"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Với lỗi liên quan motor hoặc flight-critical code,
+        hãy tháo cánh quạt trước khi tái hiện lỗi trên bench.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Mô tả lỗi
+      description: Mô tả ngắn gọn hành vi không đúng.
+      placeholder: |
+        Ví dụ:
+        Gyro trục Y đổi dấu sau khi chuyển sensor sang body frame.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Mức độ nghiêm trọng
+      options:
+        - Critical - Có nguy cơ mất an toàn hoặc hỏng phần cứng
+        - High - Chặn chức năng chính
+        - Medium - Chức năng sai nhưng có workaround
+        - Low - Lỗi nhỏ hoặc hiển thị
+    validations:
+      required: true
+
+  - type: dropdown
+    id: affected-area
+    attributes:
+      label: Khu vực bị ảnh hưởng
+      options:
+        - Build / STM32CubeIDE
+        - Board / CubeMX
+        - ICM42688P
+        - BMP280
+        - GY-271
+        - Sensor calibration
+        - Estimator
+        - PID / controller
+        - Mixer / ESC / motor
+        - RC input
+        - Communication / UART / MAVLink
+        - Arming / failsafe / safety
+        - Scheduler / timing
+        - Logging / tools
+        - Hardware
+        - Documentation
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mcu
+    attributes:
+      label: MCU hoặc board
+      options:
+        - STM32F411CEU6
+        - STM32F405RGT6
+        - Cả hai MCU
+        - Không phụ thuộc MCU
+        - Chưa xác định
+    validations:
+      required: true
+
+  - type: input
+    id: firmware-version
+    attributes:
+      label: Commit hoặc firmware version
+      description: Chạy `git rev-parse --short HEAD` để lấy commit hiện tại.
+      placeholder: "Ví dụ: 12b4973"
+    validations:
+      required: true
+
+  - type: textarea
+    id: hardware
+    attributes:
+      label: Hardware đang sử dụng
+      placeholder: |
+        MCU:
+        Board:
+        IMU:
+        Barometer:
+        Magnetometer:
+        ESC:
+        Motor:
+        Pin hoặc peripheral liên quan:
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Các bước tái hiện
+      placeholder: |
+        1. Flash firmware.
+        2. Mở serial terminal.
+        3. Nghiêng board sang phải.
+        4. Quan sát gyro Y.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Kết quả mong đợi
+      placeholder: Mô tả hành vi đúng.
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Kết quả thực tế
+      placeholder: Mô tả hành vi đang xảy ra.
+    validations:
+      required: true
+
+  - type: textarea
+    id: frequency
+    attributes:
+      label: Tần suất xuất hiện
+      placeholder: |
+        Luôn xảy ra / thỉnh thoảng / chỉ sau reset /
+        chỉ khi motor chạy / chỉ khi bật DMA...
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Log và bằng chứng
+      description: Đính kèm serial output, log, ảnh, plot hoặc video phù hợp.
+      placeholder: |
+        Dán log ngắn tại đây hoặc kéo thả file vào Issue.
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: recent-changes
+    attributes:
+      label: Thay đổi gần đây có thể liên quan
+      placeholder: |
+        Ví dụ:
+        - Vừa đổi SPI polling sang DMA.
+        - Vừa thay đổi sensor axis mapping.
+        - Vừa regenerate code từ CubeMX.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Kiểm tra an toàn
+      options:
+        - label: Tôi đã tháo cánh trước khi tái hiện lỗi motor hoặc controller.
+        - label: Tôi đã dừng test nếu có nguy cơ gây hỏng phần cứng.
+        - label: Lỗi này không liên quan motor hoặc flight-critical code.
+
+  - type: checkboxes
+    id: final-check
+    attributes:
+      label: Xác nhận
+      options:
+        - label: Tôi đã kiểm tra không có Issue trùng lặp.
+          required: true
+        - label: Tôi đã cung cấp đủ bước tái hiện.
+          required: true
+        - label: Tôi không đưa mật khẩu, token hoặc thông tin bí mật vào Issue.
+          required: true

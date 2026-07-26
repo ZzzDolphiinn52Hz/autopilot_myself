@@ -1,0 +1,193 @@
+name: Firmware task
+description: Giao một chức năng, cải tiến hoặc công việc kỹ thuật cho firmware drone
+title: "[TASK] "
+labels:
+  - "task"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Hãy điền đầy đủ thông tin trước khi bắt đầu code.
+        Một Issue chỉ nên tập trung vào một mục tiêu kỹ thuật chính.
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: Mục tiêu
+      description: Mô tả kết quả cuối cùng cần đạt được.
+      placeholder: |
+        Ví dụ:
+        Implement Mahony attitude estimator để xuất quaternion
+        từ dữ liệu ICM42688P đã calibration.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Khu vực kỹ thuật
+      options:
+        - Board support / STM32CubeIDE
+        - Sensor driver
+        - Sensor calibration
+        - Sensor filtering
+        - Attitude estimator
+        - Altitude estimator
+        - Rate controller
+        - Attitude controller
+        - Altitude controller
+        - Position controller
+        - Mixer / motor output
+        - RC input
+        - MAVLink / communication
+        - Arming / failsafe / safety
+        - Scheduler / RTOS
+        - Logging / debugging
+        - Tools / scripts
+        - Documentation
+        - Hardware
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mcu
+    attributes:
+      label: MCU target
+      options:
+        - STM32F411CEU6
+        - STM32F405RGT6
+        - Cả hai MCU
+        - Không phụ thuộc MCU
+        - Chưa xác định
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-state
+    attributes:
+      label: Trạng thái hiện tại
+      description: Mô tả code hoặc hardware đang có trước khi thực hiện task.
+      placeholder: |
+        Ví dụ:
+        - ICM42688P đã đọc được bằng SPI.
+        - Dữ liệu gyro đang ở đơn vị raw.
+        - Chưa có timestamp cho từng sample.
+    validations:
+      required: true
+
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Yêu cầu kỹ thuật
+      description: Liệt kê các yêu cầu mà implementation phải đáp ứng.
+      placeholder: |
+        Ví dụ:
+        - Không sử dụng HAL_Delay trong runtime.
+        - Không cấp phát động.
+        - Input dùng rad/s và m/s^2.
+        - Update rate tối thiểu 500 Hz.
+        - Có xử lý sensor timeout.
+    validations:
+      required: true
+
+  - type: textarea
+    id: interfaces
+    attributes:
+      label: Input và output mong muốn
+      description: Mô tả API, dữ liệu đầu vào và dữ liệu đầu ra.
+      placeholder: |
+        Input:
+        - gyro_rad_s[3]
+        - accel_m_s2[3]
+        - dt
+
+        Output:
+        - quaternion
+        - roll, pitch, yaw
+    validations:
+      required: false
+
+  - type: textarea
+    id: affected-files
+    attributes:
+      label: File hoặc module dự kiến bị ảnh hưởng
+      placeholder: |
+        firmware/flight-controller/App/estimators/
+        firmware/flight-controller/App/sensors/
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: critical-config
+    attributes:
+      label: Cấu hình flight-critical có thể bị ảnh hưởng
+      options:
+        - label: File CubeMX `.ioc`
+        - label: Pin mapping
+        - label: Timer hoặc PWM
+        - label: DMA
+        - label: Interrupt hoặc interrupt priority
+        - label: Mixer hoặc motor output
+        - label: Arming hoặc failsafe
+        - label: Không có mục nào ở trên
+
+  - type: textarea
+    id: test-plan
+    attributes:
+      label: Kế hoạch kiểm tra
+      description: Mô tả cách chứng minh task đã hoạt động đúng.
+      placeholder: |
+        1. Build firmware không có error.
+        2. Test khi tháo cánh.
+        3. Ghi log dữ liệu.
+        4. So sánh output với giá trị tham chiếu.
+        5. Đính kèm plot hoặc video.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Tiêu chí hoàn thành
+      description: Các điều kiện phải đạt trước khi đóng Issue.
+      placeholder: |
+        - [ ] Build thành công.
+        - [ ] Không có warning mới.
+        - [ ] API được document.
+        - [ ] Bench test đạt.
+        - [ ] Pull Request được Code Owner approve.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Độ ưu tiên
+      options:
+        - P0 - Blocker / Safety critical
+        - P1 - Cao
+        - P2 - Trung bình
+        - P3 - Thấp
+    validations:
+      required: true
+
+  - type: input
+    id: assignee-suggestion
+    attributes:
+      label: Người phụ trách đề xuất
+      description: Nhập GitHub username, ví dụ @username.
+      placeholder: "@username"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: final-check
+    attributes:
+      label: Xác nhận
+      options:
+        - label: Issue này chỉ tập trung vào một mục tiêu chính.
+          required: true
+        - label: Tôi đã kiểm tra không có Issue trùng lặp.
+          required: true
+        - label: Tôi hiểu rằng code phải được đưa vào `main` thông qua Pull Request.
+          required: true
