@@ -65,8 +65,8 @@ git push -u origin feat/example-feature
 
 Then open a Pull Request from the task branch into main.
 
+### Optional: Editor shortcut
 
-Lưu file bằng:
+Save the file:
 
-```text
-Ctrl + S
+    Ctrl+S
