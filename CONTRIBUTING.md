@@ -32,15 +32,14 @@ Supported branch types:
 
 Examples:
 
-```text
-feat/bmp280-driver
-feat/mahony-estimator
-fix/icm42688-axis
-refactor/sensor-interface
-docs/repository-workflow
-build/configure-spi-dma
-Standard development workflow
-```
+    feat/bmp280-driver
+    feat/mahony-estimator
+    fix/icm42688-axis
+    refactor/sensor-interface
+    docs/repository-workflow
+    build/configure-spi-dma
+
+### Standard development workflow
 
 Update the local main branch:
 
