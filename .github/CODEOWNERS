@@ -1,0 +1,48 @@
+# ============================================================
+# Default ownership
+# ============================================================
+
+* @ZzzDolphiinn52Hz
+
+
+# ============================================================
+# Repository workflow and GitHub configuration
+# ============================================================
+
+/.github/ @ZzzDolphiinn52Hz
+/CONTRIBUTING.md @ZzzDolphiinn52Hz
+/README.md @ZzzDolphiinn52Hz
+
+
+# ============================================================
+# Flight-controller firmware
+# ============================================================
+
+/firmware/ @ZzzDolphiinn52Hz @BuiTienChuong @NTKkhanhnek
+
+
+# STM32CubeMX and board-critical configuration
+*.ioc @ZzzDolphiinn52Hz
+*.ld @ZzzDolphiinn52Hz
+*.s @ZzzDolphiinn52Hz
+
+
+# ============================================================
+# Hardware
+# ============================================================
+
+/hardware/ @BuiTienChuong @NTKkhanhnek
+
+
+# ============================================================
+# Development tools and scripts
+# ============================================================
+
+/tools/ @ZzzDolphiinn52Hz
+
+
+# ============================================================
+# Documentation
+# ============================================================
+
+/docs/ @ZzzDolphiinn52Hz @BuiTienChuong @NTKkhanhnek
