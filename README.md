@@ -285,6 +285,20 @@ Mỗi Pull Request phải:
 - resolve toàn bộ conversation trước khi merge;
 - sử dụng Squash merge.
 
+## Sau khi được merge, đồng bộ máy
+
+```bash
+git switch main
+git pull --ff-only origin main
+git fetch origin --prune
+```
+
+## Sau đó xóa branch local
+
+```bash
+git branch -D <branch_name>
+```
+
 ## Safety rules
 
 Luôn tháo cánh quạt khi thực hiện:
