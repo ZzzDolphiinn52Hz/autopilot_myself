@@ -65,3 +65,6 @@ void clock_enable_APB2(APB2_peripheral_t peripheral);
 void clock_init(void);
 
 #endif /* INC_CLOCK_H_ */
+
+
+//dfsfdfsdfdsfs
