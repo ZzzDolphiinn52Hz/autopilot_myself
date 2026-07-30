@@ -4,7 +4,7 @@
 
 #include <stdint.h>
 
-#define PWM_MIN_US 1100
+#define PWM_MIN_US 1000
 #define PWM_MAX_US 1950
 
 void pwm_init(void);
