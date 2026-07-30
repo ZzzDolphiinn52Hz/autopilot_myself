@@ -20,7 +20,9 @@ static volatile uint32_t *SPI1_CRCPR    = (volatile uint32_t *)(SPI1_ADDR + 0x10
 static volatile uint32_t *SPI1_RXCRCR   = (volatile uint32_t *)(SPI1_ADDR + 0x14);
 static volatile uint32_t *SPI1_TXCRCR   = (volatile uint32_t *)(SPI1_ADDR + 0x18);
 
-#define SPI_CS_PIN          4
+#define SPI_CS4_PIN         4
+#define SPI_CS1_PIN         1
+#define SPI_CS0_PIN         0
 #define SPI_SCK_PIN         5
 #define SPI_MISO_PIN        6
 #define SPI_MOSI_PIN        7
@@ -49,8 +51,6 @@ static volatile uint32_t *SPI1_TXCRCR   = (volatile uint32_t *)(SPI1_ADDR + 0x18
 static SPI_Status_t spi_wait_flag_set(volatile uint32_t *reg, uint32_t flag);
 static SPI_Status_t spi_wait_flag_reset(volatile uint32_t *reg, uint32_t flag);
 static void spi_clear_ovr_flag(void);
-
-SPI_Status_t SPI_transfer_byte(uint8_t tx_data, uint8_t *rx_data);
 
 static SPI_Status_t spi_wait_flag_set(volatile uint32_t *reg, uint32_t flag)
 {
@@ -91,19 +91,19 @@ void SPI_init(void)
     clock_enable_AHB1(GPIOA_peripheral);
     clock_enable_APB2(SPI1_peripheral);
 
-    *GPIOA_MODER &= ~((0b11 << (SPI_CS_PIN * 2)) | (0b11 << (SPI_SCK_PIN * 2)) | (0b11 << (SPI_MISO_PIN * 2)) | (0b11 << (SPI_MOSI_PIN * 2)));
-    *GPIOA_MODER |=  ((0b01 << (SPI_CS_PIN * 2)) | (0b10 << (SPI_SCK_PIN * 2)) | (0b10 << (SPI_MISO_PIN * 2)) | (0b10 << (SPI_MOSI_PIN * 2)));
+    *GPIOA_MODER &= ~((0b11 << (SPI_CS4_PIN * 2)) | (0b11 << (SPI_CS1_PIN * 2)) | (0b11 << (SPI_CS0_PIN * 2)) | (0b11 << (SPI_SCK_PIN * 2)) | (0b11 << (SPI_MISO_PIN * 2)) | (0b11 << (SPI_MOSI_PIN * 2)));
+    *GPIOA_MODER |=  ((0b01 << (SPI_CS4_PIN * 2)) | (0b01 << (SPI_CS1_PIN * 2)) | (0b01 << (SPI_CS0_PIN * 2)) | (0b10 << (SPI_SCK_PIN * 2)) | (0b10 << (SPI_MISO_PIN * 2)) | (0b10 << (SPI_MOSI_PIN * 2)));
     // cs out, sck_miso_mosi alternate
 
-    *GPIOA_OTYPER &= ~((1 << SPI_CS_PIN) | (1 << SPI_SCK_PIN) | (1 << SPI_MISO_PIN) | (1 << SPI_MOSI_PIN));
+    *GPIOA_OTYPER &= ~((1 << SPI_CS4_PIN) | (1 << SPI_CS1_PIN) | (1 << SPI_CS0_PIN) | (1 << SPI_SCK_PIN) | (1 << SPI_MISO_PIN) | (1 << SPI_MOSI_PIN));
     // opendrain
 
-    *GPIOA_OSPEEDR &= ~((0b11 << (SPI_CS_PIN * 2)) | (0b11 << (SPI_SCK_PIN * 2)) | (0b11 << (SPI_MISO_PIN * 2)) | (0b11 << (SPI_MOSI_PIN * 2)));
-    *GPIOA_OSPEEDR |=  ((0b10 << (SPI_CS_PIN * 2)) | (0b10 << (SPI_SCK_PIN * 2)) | (0b10 << (SPI_MISO_PIN * 2)) | (0b10 << (SPI_MOSI_PIN * 2)));
+    *GPIOA_OSPEEDR &= ~((0b11 << (SPI_CS4_PIN * 2)) | (0b11 << (SPI_CS1_PIN * 2)) | (0b11 << (SPI_CS0_PIN * 2)) | (0b11 << (SPI_SCK_PIN * 2)) | (0b11 << (SPI_MISO_PIN * 2)) | (0b11 << (SPI_MOSI_PIN * 2)));
+    *GPIOA_OSPEEDR |=  ((0b10 << (SPI_CS4_PIN * 2)) | (0b10 << (SPI_CS1_PIN * 2)) | (0b10 << (SPI_CS0_PIN * 2)) | (0b10 << (SPI_SCK_PIN * 2)) | (0b10 << (SPI_MISO_PIN * 2)) | (0b10 << (SPI_MOSI_PIN * 2)));
     // fast speed
 
-    *GPIOA_PUPDR &= ~((0b11 << (SPI_CS_PIN * 2)) | (0b11 << (SPI_SCK_PIN * 2)) | (0b11 << (SPI_MISO_PIN * 2)) | (0b11 << (SPI_MOSI_PIN * 2)));
-    *GPIOA_PUPDR |=   (0b01 << (SPI_CS_PIN * 2));
+    *GPIOA_PUPDR &= ~((0b11 << (SPI_CS4_PIN * 2)) | (0b11 << (SPI_CS1_PIN * 2)) | (0b11 << (SPI_CS0_PIN * 2)) | (0b11 << (SPI_SCK_PIN * 2)) | (0b11 << (SPI_MISO_PIN * 2)) | (0b11 << (SPI_MOSI_PIN * 2)));
+    *GPIOA_PUPDR |=   (0b01 << (SPI_CS4_PIN * 2)) | (0b01 << (SPI_CS1_PIN * 2)) | (0b01 << (SPI_CS0_PIN * 2));
     // cs pull up
 
     *GPIOA_AFRL &= ~((0xF << (SPI_SCK_PIN * 4)) | (0xF << (SPI_MISO_PIN * 4)) | (0xF << (SPI_MOSI_PIN * 4)));
@@ -121,7 +121,7 @@ void SPI_init(void)
 
     *SPI1_CR1 &= ~SPI_CR1_CPOL; // cpol =0
     *SPI1_CR1 &= ~SPI_CR1_CPHA; // cpha=0
-    // => clocl low, lay mau canh dau
+    // => clock low, lay mau canh dau
 
     *SPI1_CR1 &= ~SPI_CR1_DFF; // 8bit 
     *SPI1_CR1 &= ~SPI_CR1_LSBFIRST; // Msb first
@@ -233,7 +233,6 @@ SPI_Status_t SPI_transmit_receive(const uint8_t *tx_data, uint8_t *rx_data, uint
             return status;
         }
     }
-
     return SPI_OK;
 }
 
