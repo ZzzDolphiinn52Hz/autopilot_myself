@@ -34,7 +34,9 @@ volatile uint16_t debug_dig_P1;
 //3 ham sau la 3 cong cu giao tiep i2c
 static BMP280_StatusTypeDef BMP280_WriteReg(uint8_t reg, uint8_t data)
 {
-    if (i2c_mem_write(bmp280_addr, reg, &data, 1) != I2C_OK)
+    uint8_t buffer[2] = {reg, data};
+
+    if (i2c_master_transmit(bmp280_addr, buffer, 2) != I2C_OK)
     {
         return BMP280_ERROR;
     }
@@ -44,7 +46,17 @@ static BMP280_StatusTypeDef BMP280_WriteReg(uint8_t reg, uint8_t data)
 
 static BMP280_StatusTypeDef BMP280_ReadReg(uint8_t reg, uint8_t *data)
 {
-    if (i2c_mem_read(bmp280_addr, reg, data, 1) != I2C_OK)
+    if (data == 0)
+    {
+        return BMP280_ERROR;
+    }
+
+    if (i2c_master_transmit(bmp280_addr, &reg, 1) != I2C_OK)
+    {
+        return BMP280_ERROR;
+    }
+
+    if (i2c_master_receive(bmp280_addr, data, 1) != I2C_OK)
     {
         return BMP280_ERROR;
     }
@@ -54,7 +66,17 @@ static BMP280_StatusTypeDef BMP280_ReadReg(uint8_t reg, uint8_t *data)
 
 static BMP280_StatusTypeDef BMP280_ReadRegs(uint8_t reg, uint8_t *data, uint8_t len)
 {
-    if (i2c_mem_read(bmp280_addr, reg, data, len) != I2C_OK)
+    if ((data == 0) || (len == 0))
+    {
+        return BMP280_ERROR;
+    }
+
+    if (i2c_master_transmit(bmp280_addr, &reg, 1) != I2C_OK)
+    {
+        return BMP280_ERROR;
+    }
+
+    if (i2c_master_receive(bmp280_addr, data, len) != I2C_OK)
     {
         return BMP280_ERROR;
     }
