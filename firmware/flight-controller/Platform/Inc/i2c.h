@@ -26,10 +26,8 @@ typedef enum
     SPI_TIMEOUT
 } SPI_Status_t;
 
-void SPI_init(void);
-SPI_Status_t SPI_transmit(const uint8_t *data, uint16_t len);
-SPI_Status_t SPI_receive(uint8_t *data, uint16_t len);
-SPI_Status_t SPI_transmit_receive(const uint8_t *tx_data, uint8_t *rx_data, uint16_t len);
-SPI_Status_t SPI_transfer_byte(uint8_t tx_data, uint8_t *rx_data);
+void i2c_init(void);
+I2C_Status_t i2c_mem_write(uint8_t dev_addr, uint8_t mem_addr, const uint8_t *data, uint16_t len);
+I2C_Status_t i2c_mem_read(uint8_t dev_addr, uint8_t mem_addr, uint8_t *data, uint16_t len);
 
 #endif /* INC_SPI_H_ */

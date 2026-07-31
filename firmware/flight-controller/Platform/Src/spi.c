@@ -21,8 +21,6 @@
  volatile uint32_t *SPI1_TXCRCR   = (volatile uint32_t *)(SPI1_ADDR + 0x18);
 
 
-
-
 #define SPI_SCK_PIN         5
 #define SPI_MISO_PIN        6
 #define SPI_MOSI_PIN        7
@@ -92,20 +90,20 @@ void SPI_init(void)
     clock_enable_AHB1(GPIOA_peripheral);
     clock_enable_APB2(SPI1_peripheral);
 
-    *GPIOA_MODER &= ~(  (0b11 << (SPI_SCK_PIN * 2)) | (0b11 << (SPI_MISO_PIN * 2)) | (0b11 << (SPI_MOSI_PIN * 2)));
-    *GPIOA_MODER |=  (  (0b10 << (SPI_SCK_PIN * 2)) | (0b10 << (SPI_MISO_PIN * 2)) | (0b10 << (SPI_MOSI_PIN * 2)));
-    
-    
-    //  sck_miso_mosi alternate
+    *GPIOA_MODER &= ~( (0b11 << (SPI_SCK_PIN * 2)) | (0b11 << (SPI_MISO_PIN * 2)) | (0b11 << (SPI_MOSI_PIN * 2)));
+    *GPIOA_MODER |=  ( (0b10 << (SPI_SCK_PIN * 2)) | (0b10 << (SPI_MISO_PIN * 2)) | (0b10 << (SPI_MOSI_PIN * 2)));
+    // cs out, sck_miso_mosi alternate
 
     *GPIOA_OTYPER &= ~((1 << SPI_SCK_PIN) | (1 << SPI_MISO_PIN) | (1 << SPI_MOSI_PIN));
     // opendrain
 
-    *GPIOA_OSPEEDR &= ~((0b11 << (SPI_SCK_PIN * 2)) | (0b11 << (SPI_MISO_PIN * 2)) | (0b11 << (SPI_MOSI_PIN * 2)));
-    *GPIOA_OSPEEDR |=  ((0b10 << (SPI_SCK_PIN * 2)) | (0b10 << (SPI_MISO_PIN * 2)) | (0b10 << (SPI_MOSI_PIN * 2)));
+    *GPIOA_OSPEEDR &= ~( (0b11 << (SPI_SCK_PIN * 2)) | (0b11 << (SPI_MISO_PIN * 2)) | (0b11 << (SPI_MOSI_PIN * 2)));
+    *GPIOA_OSPEEDR |=  ( (0b10 << (SPI_SCK_PIN * 2)) | (0b10 << (SPI_MISO_PIN * 2)) | (0b10 << (SPI_MOSI_PIN * 2)));
     // fast speed
 
-    *GPIOA_PUPDR &= ~((0b11 << (SPI_SCK_PIN * 2)) | (0b11 << (SPI_MISO_PIN * 2)) | (0b11 << (SPI_MOSI_PIN * 2)));
+    *GPIOA_PUPDR &= ~( (0b11 << (SPI_SCK_PIN * 2)) | (0b11 << (SPI_MISO_PIN * 2)) | (0b11 << (SPI_MOSI_PIN * 2)));
+    
+    // cs pull up
 
     *GPIOA_AFRL &= ~((0xF << (SPI_SCK_PIN * 4)) | (0xF << (SPI_MISO_PIN * 4)) | (0xF << (SPI_MOSI_PIN * 4)));
     *GPIOA_AFRL |=  ((5 << (SPI_SCK_PIN * 4)) | (5 << (SPI_MISO_PIN * 4)) | (5 << (SPI_MOSI_PIN * 4)));

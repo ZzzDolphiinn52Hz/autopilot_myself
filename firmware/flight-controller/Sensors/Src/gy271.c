@@ -27,7 +27,9 @@ volatile uint8_t debug_gy271_chip;
 // 3 ham sau la 3 cong cu giao tiep i2c
 static GY271_StatusTypeDef GY271_WriteReg(uint8_t reg, uint8_t data)
 {
-    if (i2c_mem_write(gy271_addr, reg, &data, 1) != I2C_OK)
+    uint8_t buffer[2] = {reg, data};
+
+    if (i2c_master_transmit(gy271_addr, buffer, 2) != I2C_OK)
     {
         return GY271_ERROR;
     }
@@ -37,7 +39,17 @@ static GY271_StatusTypeDef GY271_WriteReg(uint8_t reg, uint8_t data)
 
 static GY271_StatusTypeDef GY271_ReadReg(uint8_t reg, uint8_t *data)
 {
-    if (i2c_mem_read(gy271_addr, reg, data, 1) != I2C_OK)
+    if (data == 0)
+    {
+        return GY271_ERROR;
+    }
+
+    if (i2c_master_transmit(gy271_addr, &reg, 1) != I2C_OK)
+    {
+        return GY271_ERROR;
+    }
+
+    if (i2c_master_receive(gy271_addr, data, 1) != I2C_OK)
     {
         return GY271_ERROR;
     }
@@ -47,7 +59,17 @@ static GY271_StatusTypeDef GY271_ReadReg(uint8_t reg, uint8_t *data)
 
 static GY271_StatusTypeDef GY271_ReadRegs(uint8_t reg, uint8_t *data, uint8_t len)
 {
-    if (i2c_mem_read(gy271_addr, reg, data, len) != I2C_OK)
+    if ((data == 0) || (len == 0))
+    {
+        return GY271_ERROR;
+    }
+
+    if (i2c_master_transmit(gy271_addr, &reg, 1) != I2C_OK)
+    {
+        return GY271_ERROR;
+    }
+
+    if (i2c_master_receive(gy271_addr, data, len) != I2C_OK)
     {
         return GY271_ERROR;
     }

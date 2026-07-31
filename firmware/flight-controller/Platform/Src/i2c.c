@@ -115,30 +115,29 @@ void i2c_init(void)
     clock_enable_AHB1(GPIOB_peripheral);
     clock_enable_APB1(I2C3_peripheral);
 
-    // PA8 SCL (AF4)
-    *GPIOA_MODER &= ~(0b11 << 16); 
+    // PA8 = I2C3_SCL (AF4), PB4 = I2C3_SDA (AF9), open-drain, pull-up.
+    *GPIOA_MODER &= ~(0b11 << 16);
     *GPIOA_MODER |=  (0b10 << 16);
-    *GPIOA_OTYPER |= (1 << 8); // opendrain
+    *GPIOA_OTYPER |= (1 << 8);
     *GPIOA_OSPEEDR &= ~(0b11 << 16);
-    *GPIOA_OSPEEDR |=  (0b10 << 16); // fast speed
+    *GPIOA_OSPEEDR |=  (0b10 << 16);
     *GPIOA_PUPDR &= ~(0b11 << 16);
-    *GPIOA_PUPDR |=  (0b01 << 16); // pull up
+    *GPIOA_PUPDR |=  (0b01 << 16);
     *GPIOA_AFRH &= ~(0xF << 0);
-    *GPIOA_AFRH |=  (4 << 0); // AF4
+    *GPIOA_AFRH |=  (4 << 0);
 
-    // PB4 SDA (AF9)
-    *GPIOB_MODER &= ~(0b11 << 8); 
+    *GPIOB_MODER &= ~(0b11 << 8);
     *GPIOB_MODER |=  (0b10 << 8);
-    *GPIOB_OTYPER |= (1 << 4); // opendrain
+    *GPIOB_OTYPER |= (1 << 4);
     *GPIOB_OSPEEDR &= ~(0b11 << 8);
-    *GPIOB_OSPEEDR |=  (0b10 << 8); // fast speed
+    *GPIOB_OSPEEDR |=  (0b10 << 8);
     *GPIOB_PUPDR &= ~(0b11 << 8);
-    *GPIOB_PUPDR |=  (0b01 << 8); // pull up
+    *GPIOB_PUPDR |=  (0b01 << 8);
     *GPIOB_AFRL &= ~(0xF << 16);
-    *GPIOB_AFRL |=  (9 << 16); // AF9
+    *GPIOB_AFRL |=  (9 << 16);
 
     *I2C3_CR1 |= I2C_CR1_SWRST;
-    *I2C3_CR1 &= ~I2C_CR1_SWRST; 
+    *I2C3_CR1 &= ~I2C_CR1_SWRST;
 
     *I2C3_CR1 &= ~I2C_CR1_PE;
     *I2C3_CR2 = I2C_APB1_MHZ; // 50
@@ -329,80 +328,4 @@ I2C_Status_t i2c_master_receive(uint8_t dev_addr, uint8_t *data, uint16_t len)
     *I2C3_CR1 &= ~I2C_CR1_POS;
     *I2C3_CR1 |= I2C_CR1_ACK;
     return I2C_OK;
-}
-
-I2C_Status_t i2c_mem_write(uint8_t dev_addr, uint8_t mem_addr, const uint8_t *data, uint16_t len)
-{
-    if ((data == 0) && (len > 0))
-    {
-        return I2C_ERROR;
-    }
-
-    if (i2c_start() != I2C_OK)
-    {
-        return I2C_TIMEOUT;
-    }
-
-    if (i2c_send_address(dev_addr, 0) != I2C_OK)
-    {
-        return I2C_ERROR;
-    }
-    i2c_clear_addr_flag();
-
-    if (i2c_send_byte(mem_addr) != I2C_OK)
-    {
-        i2c_stop();
-        return I2C_ERROR;
-    }
-
-    for (uint16_t i = 0; i < len; i++)
-    {
-        if (i2c_send_byte(data[i]) != I2C_OK)
-        {
-            i2c_stop();
-            return I2C_ERROR;
-        }
-    }
-
-    if (i2c_wait_flag_set(I2C3_SR1, I2C_SR1_BTF) != I2C_OK)
-    {
-        i2c_stop();
-        return I2C_TIMEOUT;
-    }
-
-    i2c_stop();
-    return I2C_OK;
-}
-
-I2C_Status_t i2c_mem_read(uint8_t dev_addr, uint8_t mem_addr, uint8_t *data, uint16_t len)
-{
-    if ((data == 0) || (len == 0))
-    {
-        return I2C_ERROR;
-    }
-
-    if (i2c_start() != I2C_OK)
-    {
-        return I2C_TIMEOUT;
-    }
-
-    if (i2c_send_address(dev_addr, 0) != I2C_OK)
-    {
-        return I2C_ERROR;
-    }
-    i2c_clear_addr_flag();
-
-    if (i2c_send_byte(mem_addr) != I2C_OK)
-    {
-        i2c_stop();
-        return I2C_ERROR;
-    }
-
-    if (i2c_wait_flag_set(I2C3_SR1, I2C_SR1_BTF) != I2C_OK)
-    {
-        i2c_stop();
-        return I2C_TIMEOUT;
-    }
-
-    return i2c_master_receive(dev_addr, data, len);
 }
