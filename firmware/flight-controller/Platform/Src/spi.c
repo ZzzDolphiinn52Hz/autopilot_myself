@@ -28,7 +28,7 @@
 #define SPI_CR1_CPHA        (1 << 0)
 #define SPI_CR1_CPOL        (1 << 1)
 #define SPI_CR1_MSTR        (1 << 2)
-//#define SPI_CR1_BR_DIV16   (3 << 3)
+#define SPI_CR1_BR_DIV16   (3 << 3)
 #define SPI_CR1_BR_DIV128   (6 << 3)
 #define SPI_CR1_SPE         (1 << 6)
 #define SPI_CR1_LSBFIRST    (1 << 7)
@@ -114,7 +114,7 @@ void SPI_init(void)
     *SPI1_CR2 = 0; // clear old cau hinh
 
     *SPI1_CR1 |= SPI_CR1_MSTR; // stm = master
-    *SPI1_CR1 |= SPI_CR1_BR_DIV128; // 011: fPCLK/16, ICM20948 SPI max is about 7MHz
+    *SPI1_CR1 |= SPI_CR1_BR_DIV16; // 011: fPCLK/16, ICM20948 SPI max is about 7MHz
     *SPI1_CR1 |= SPI_CR1_SSM; 
     *SPI1_CR1 |= SPI_CR1_SSI; // cs=1
 
