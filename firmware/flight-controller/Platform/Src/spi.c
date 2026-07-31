@@ -22,7 +22,6 @@
 
 
 
-
 #define SPI_SCK_PIN         5
 #define SPI_MISO_PIN        6
 #define SPI_MOSI_PIN        7
