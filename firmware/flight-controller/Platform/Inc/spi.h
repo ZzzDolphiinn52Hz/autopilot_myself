@@ -3,6 +3,22 @@
 
 #include <stdint.h>
 
+
+extern volatile uint32_t *GPIOA_MODER   ;
+extern volatile uint32_t *GPIOA_OTYPER  ;
+extern volatile uint32_t *GPIOA_OSPEEDR ;
+extern volatile uint32_t *GPIOA_PUPDR   ;
+extern volatile uint32_t *GPIOA_BSRR    ;
+extern volatile uint32_t *GPIOA_AFRL   ;
+extern volatile uint32_t *GPIOA_AFRH   ;
+
+extern volatile uint32_t *SPI1_CR1     ;
+extern volatile uint32_t *SPI1_CR2     ;
+extern volatile uint32_t *SPI1_SR      ;
+extern volatile uint32_t *SPI1_DR      ;
+extern volatile uint32_t *SPI1_CRCPR   ;
+extern volatile uint32_t *SPI1_RXCRCR  ;
+extern volatile uint32_t *SPI1_TXCRCR  ;
 typedef enum
 {
     SPI_OK = 0,
