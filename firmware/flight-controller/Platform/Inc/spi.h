@@ -4,21 +4,24 @@
 #include <stdint.h>
 
 
-extern volatile uint32_t *GPIOA_MODER   ;
-extern volatile uint32_t *GPIOA_OTYPER  ;
-extern volatile uint32_t *GPIOA_OSPEEDR ;
-extern volatile uint32_t *GPIOA_PUPDR   ;
-extern volatile uint32_t *GPIOA_BSRR    ;
-extern volatile uint32_t *GPIOA_AFRL   ;
-extern volatile uint32_t *GPIOA_AFRH   ;
+#define GPIOA_ADDR      0x40020000
+#define SPI1_ADDR       0x40013000
 
-extern volatile uint32_t *SPI1_CR1     ;
-extern volatile uint32_t *SPI1_CR2     ;
-extern volatile uint32_t *SPI1_SR      ;
-extern volatile uint32_t *SPI1_DR      ;
-extern volatile uint32_t *SPI1_CRCPR   ;
-extern volatile uint32_t *SPI1_RXCRCR  ;
-extern volatile uint32_t *SPI1_TXCRCR  ;
+#define GPIOA_MODER     ((volatile uint32_t *)(GPIOA_ADDR + 0x00))
+#define GPIOA_OTYPER    ((volatile uint32_t *)(GPIOA_ADDR + 0x04))
+#define GPIOA_OSPEEDR   ((volatile uint32_t *)(GPIOA_ADDR + 0x08))
+#define GPIOA_PUPDR     ((volatile uint32_t *)(GPIOA_ADDR + 0x0C))
+#define GPIOA_BSRR      ((volatile uint32_t *)(GPIOA_ADDR + 0x18))
+#define GPIOA_AFRL      ((volatile uint32_t *)(GPIOA_ADDR + 0x20))
+#define GPIOA_AFRH      ((volatile uint32_t *)(GPIOA_ADDR + 0x24))
+
+#define SPI1_CR1        ((volatile uint32_t *)(SPI1_ADDR + 0x00))
+#define SPI1_CR2        ((volatile uint32_t *)(SPI1_ADDR + 0x04))
+#define SPI1_SR         ((volatile uint32_t *)(SPI1_ADDR + 0x08))
+#define SPI1_DR         ((volatile uint32_t *)(SPI1_ADDR + 0x0C))
+#define SPI1_CRCPR      ((volatile uint32_t *)(SPI1_ADDR + 0x10))
+#define SPI1_RXCRCR     ((volatile uint32_t *)(SPI1_ADDR + 0x14))
+#define SPI1_TXCRCR     ((volatile uint32_t *)(SPI1_ADDR + 0x18))
 typedef enum
 {
     SPI_OK = 0,

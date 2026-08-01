@@ -19,8 +19,7 @@ volatile int16_t debug_icm42688_gyro_z;
 volatile int16_t debug_icm42688_temp;
 volatile uint8_t debug_icm42688_who_am_i;
 
-#define GPIOA_ADDR      0x40020000
-static volatile uint32_t *GPIOA_BSRR = (volatile uint32_t *)(GPIOA_ADDR + 0x18);
+
 #define ICM42688_CS_PIN 4
 
 static void ICM42688_CS_Low(void)

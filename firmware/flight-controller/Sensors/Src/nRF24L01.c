@@ -71,7 +71,6 @@ NRF24_Status_t NRF24_SendCommand( uint8_t command, uint8_t *status)
 {
         SPI_Status_t spi_status;
     uint8_t received_status = 0U;
-    NRF24_CE_Low();
     NRF24_CSN_Low();
 
     spi_status = SPI_transfer_byte(command, &received_status);
@@ -110,7 +109,6 @@ NRF24_Status_t NRF24_ReadRegister( uint8_t reg, uint8_t *value, uint8_t *status)
     {
         return NRF24_INVALID_PARAM;
     }
-    NRF24_CE_Low();
     NRF24_CSN_Low();
 
     /*
@@ -175,7 +173,6 @@ NRF24_Status_t NRF24_WriteRegister( uint8_t reg, uint8_t value, uint8_t *status)
     {
         return NRF24_INVALID_PARAM;
     }
-    NRF24_CE_Low();
     NRF24_CSN_Low();
 
     spi_status = SPI_transfer_byte(
