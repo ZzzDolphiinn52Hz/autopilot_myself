@@ -1,6 +1,7 @@
 #include "nRF24L01.h"
 #include "clock.h"
 #include "spi.h"
+#include "delay.h"
 
 
 
@@ -54,6 +55,7 @@ void NRF24_CE_Low(void)
 void NRF24_CE_High(void)
 {
     *GPIOA_BSRR = (1U << NRF24_CE_PIN);
+    delay_us(130);
 }
 
 void NRF24_CSN_Low(void)
@@ -210,6 +212,11 @@ NRF24_Status_t NRF24_WriteRegister( uint8_t reg, uint8_t value, uint8_t *status)
     if (status != NULL)
     {
         *status = received_status;
+    }
+
+    if (reg == NRF24_REG_CONFIG && (value & NRF24_CONFIG_PWR_UP))
+    {
+        delay_ms(2);
     }
 
     return NRF24_OK;
