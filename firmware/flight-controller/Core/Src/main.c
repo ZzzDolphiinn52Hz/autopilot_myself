@@ -13,7 +13,7 @@ volatile float temperature_c = 0.0f;
 int main(void)
 {
     clock_init();
-    delay_init(RCC_SYS_CLOCK_HZ);
+    delay_init();
     ICM42688_Init();
 
     while (1)

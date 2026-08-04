@@ -1,16 +1,8 @@
 #include "spi.h"
 #include "clock.h"
+#include <gpio.h>
 
-#define GPIOA_ADDR      0x40020000
 #define SPI1_ADDR       0x40013000
-
-static volatile uint32_t *GPIOA_MODER   = (volatile uint32_t *)(GPIOA_ADDR + 0x00);
-static volatile uint32_t *GPIOA_OTYPER  = (volatile uint32_t *)(GPIOA_ADDR + 0x04);
-static volatile uint32_t *GPIOA_OSPEEDR = (volatile uint32_t *)(GPIOA_ADDR + 0x08);
-static volatile uint32_t *GPIOA_PUPDR   = (volatile uint32_t *)(GPIOA_ADDR + 0x0C);
-static volatile uint32_t *GPIOA_BSRR    = (volatile uint32_t *)(GPIOA_ADDR + 0x18);
-static volatile uint32_t *GPIOA_AFRL    = (volatile uint32_t *)(GPIOA_ADDR + 0x20);
-static volatile uint32_t *GPIOA_AFRH    = (volatile uint32_t *)(GPIOA_ADDR + 0x24);
 
 static volatile uint32_t *SPI1_CR1      = (volatile uint32_t *)(SPI1_ADDR + 0x00);
 static volatile uint32_t *SPI1_CR2      = (volatile uint32_t *)(SPI1_ADDR + 0x04);
@@ -19,11 +11,6 @@ static volatile uint32_t *SPI1_DR       = (volatile uint32_t *)(SPI1_ADDR + 0x0C
 static volatile uint32_t *SPI1_CRCPR    = (volatile uint32_t *)(SPI1_ADDR + 0x10);
 static volatile uint32_t *SPI1_RXCRCR   = (volatile uint32_t *)(SPI1_ADDR + 0x14);
 static volatile uint32_t *SPI1_TXCRCR   = (volatile uint32_t *)(SPI1_ADDR + 0x18);
-
-#define SPI_CS_PIN          4
-#define SPI_SCK_PIN         5
-#define SPI_MISO_PIN        6
-#define SPI_MOSI_PIN        7
 
 #define SPI_CR1_CPHA        (1 << 0)
 #define SPI_CR1_CPOL        (1 << 1)
@@ -49,9 +36,6 @@ static volatile uint32_t *SPI1_TXCRCR   = (volatile uint32_t *)(SPI1_ADDR + 0x18
 static SPI_Status_t spi_wait_flag_set(volatile uint32_t *reg, uint32_t flag);
 static SPI_Status_t spi_wait_flag_reset(volatile uint32_t *reg, uint32_t flag);
 static void spi_clear_ovr_flag(void);
-
-SPI_Status_t SPI_transfer_byte(uint8_t tx_data, uint8_t *rx_data);
-
 static SPI_Status_t spi_wait_flag_set(volatile uint32_t *reg, uint32_t flag)
 {
     uint32_t timeout = SPI_TIMEOUT_COUNT;
@@ -91,24 +75,13 @@ void SPI_init(void)
     clock_enable_AHB1(GPIOA_peripheral);
     clock_enable_APB2(SPI1_peripheral);
 
-    *GPIOA_MODER &= ~((0b11 << (SPI_CS_PIN * 2)) | (0b11 << (SPI_SCK_PIN * 2)) | (0b11 << (SPI_MISO_PIN * 2)) | (0b11 << (SPI_MOSI_PIN * 2)));
-    *GPIOA_MODER |=  ((0b01 << (SPI_CS_PIN * 2)) | (0b10 << (SPI_SCK_PIN * 2)) | (0b10 << (SPI_MISO_PIN * 2)) | (0b10 << (SPI_MOSI_PIN * 2)));
-    // cs out, sck_miso_mosi alternate
+    GPIOA_CONFIG(P5, GPIO_ALTERNATE, GPIO_PUSHPULL, GPIO_FAST, GPIO_NOPULL, 0, GPIO_AF5, 0); //clk
+    GPIOA_CONFIG(P6, GPIO_ALTERNATE, GPIO_PUSHPULL, GPIO_FAST, GPIO_NOPULL, 0, GPIO_AF5, 0); //miso
+    GPIOA_CONFIG(P7, GPIO_ALTERNATE, GPIO_PUSHPULL, GPIO_FAST, GPIO_NOPULL, 0, GPIO_AF5, 0); //mosi
+    GPIOA_CONFIG(P4, GPIO_OUTPUT, GPIO_PUSHPULL, GPIO_FAST, GPIO_PULLUP, 1, 0, 0); //cs_icm42688
+    GPIOA_CONFIG(P0, GPIO_OUTPUT, GPIO_PUSHPULL, GPIO_FAST, GPIO_PULLUP, 1, 0, 0); //cs_nrf
+    GPIOA_CONFIG(P1, GPIO_OUTPUT, GPIO_PUSHPULL, GPIO_FAST, GPIO_PULLUP, 1, 0, 0); //cs_icm20948
 
-    *GPIOA_OTYPER &= ~((1 << SPI_CS_PIN) | (1 << SPI_SCK_PIN) | (1 << SPI_MISO_PIN) | (1 << SPI_MOSI_PIN));
-    // opendrain
-
-    *GPIOA_OSPEEDR &= ~((0b11 << (SPI_CS_PIN * 2)) | (0b11 << (SPI_SCK_PIN * 2)) | (0b11 << (SPI_MISO_PIN * 2)) | (0b11 << (SPI_MOSI_PIN * 2)));
-    *GPIOA_OSPEEDR |=  ((0b10 << (SPI_CS_PIN * 2)) | (0b10 << (SPI_SCK_PIN * 2)) | (0b10 << (SPI_MISO_PIN * 2)) | (0b10 << (SPI_MOSI_PIN * 2)));
-    // fast speed
-
-    *GPIOA_PUPDR &= ~((0b11 << (SPI_CS_PIN * 2)) | (0b11 << (SPI_SCK_PIN * 2)) | (0b11 << (SPI_MISO_PIN * 2)) | (0b11 << (SPI_MOSI_PIN * 2)));
-    *GPIOA_PUPDR |=   (0b01 << (SPI_CS_PIN * 2));
-    // cs pull up
-
-    *GPIOA_AFRL &= ~((0xF << (SPI_SCK_PIN * 4)) | (0xF << (SPI_MISO_PIN * 4)) | (0xF << (SPI_MOSI_PIN * 4)));
-    *GPIOA_AFRL |=  ((5 << (SPI_SCK_PIN * 4)) | (5 << (SPI_MISO_PIN * 4)) | (5 << (SPI_MOSI_PIN * 4)));
-    // AF5 - quy uoc
 
     *SPI1_CR1 &= ~SPI_CR1_SPE; // off spi
     *SPI1_CR1 = 0;
