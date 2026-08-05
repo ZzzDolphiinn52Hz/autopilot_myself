@@ -61,6 +61,32 @@ void delay_ms(uint32_t ms){
         while ((tim1_cnt - current_time) < ms);
 }
 
-
-
-
+void delay_us(uint32_t us){
+#if (DELAY_SRC == TIMER1) 
+    volatile uint16_t* TIM1_CNT = (volatile uint16_t*)(TIM1_ADDR_BASE + 0x24);
+    uint16_t last_cnt = *TIM1_CNT;
+    while (us > 0) {
+        uint16_t current_cnt = *TIM1_CNT;
+        if (current_cnt != last_cnt) {
+            uint16_t diff = (current_cnt > last_cnt) ? (current_cnt - last_cnt) : (1000 - last_cnt + current_cnt);
+            if (us > diff) {
+                us -= diff;
+            } else {
+                us = 0;
+            }
+            last_cnt = current_cnt;
+        }
+    }
+#else
+    // SysTick Polling Delay (Assuming 100MHz clock)
+    volatile uint32_t* SYST_CSR = (volatile uint32_t*)0xE000E010;
+    volatile uint32_t* SYST_RVR = (volatile uint32_t*)0xE000E014;
+    volatile uint32_t* SYST_CVR = (volatile uint32_t*)0xE000E018;
+    
+    *SYST_RVR = (100 * us) - 1; 
+    *SYST_CVR = 0; 
+    *SYST_CSR = 5; // ENABLE | CLKSOURCE
+    while ((*SYST_CSR & (1 << 16)) == 0); // Wait for COUNTFLAG
+    *SYST_CSR = 0; // Disable
+#endif
+}
