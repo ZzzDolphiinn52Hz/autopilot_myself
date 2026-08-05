@@ -1,35 +1,51 @@
+#include <stdint.h>
 #include "delay.h"
-#include "icm42688.h"
-#include "clock.h"
+#include "spi.h"
+#include "nRF24L01.h"
 
-volatile float accel_x_g = 0.0f;
-volatile float accel_y_g = 0.0f;
-volatile float accel_z_g = 0.0f; // gia toc
-volatile float gyro_x_dps = 0.0f;
-volatile float gyro_y_dps = 0.0f;
-volatile float gyro_z_dps = 0.0f; // toc do goc
-volatile float temperature_c = 0.0f;
+ uint8_t config_value = 0U;
+ uint8_t config_value1 = 0U;
+ uint8_t rf_ch_value = 0U;
+ uint8_t rf_setup_value = 0U;
+ uint8_t fifo_status_value = 0U;
 
 int main(void)
 {
-    clock_init();
-    delay_init(RCC_SYS_CLOCK_HZ);
-    ICM42688_Init();
+    SPI_init();
+    NRF24_InitPins();
 
-    while (1)
-    {
-        ICM42688_Data_t sensor_data;
+    delay_init();
 
-        ICM42688_ReadSensorData(&sensor_data);
 
-        accel_x_g = sensor_data.accel_x_g;
-        accel_y_g = sensor_data.accel_y_g;
-        accel_z_g = sensor_data.accel_z_g;
-        gyro_x_dps = sensor_data.gyro_x_dps;
-        gyro_y_dps = sensor_data.gyro_y_dps;
-        gyro_z_dps = sensor_data.gyro_z_dps;
-        temperature_c = sensor_data.temperature_c;
 
-        delay_ms(10);
+    	 NRF24_ReadRegister(
+    	        NRF24_REG_CONFIG,
+    	        (uint8_t *)&config_value,
+    	        NULL
+    	    );
+    	 NRF24_WriteRegister(NRF24_REG_CONFIG ,20 ,NULL);
+
+    	    NRF24_ReadRegister(
+    	    		NRF24_REG_CONFIG,
+    	        (uint8_t *)&config_value1,
+    	        NULL
+    	    );
+
+    	    NRF24_ReadRegister(
+    	        NRF24_REG_RF_SETUP,
+    	        (uint8_t *)&rf_setup_value,
+    	        NULL
+    	    );
+
+    	    NRF24_ReadRegister(
+    	        NRF24_REG_FIFO_STATUS,
+    	        (uint8_t *)&fifo_status_value,
+    	        NULL
+    	    );
+
+    	    while (1)
+    	        {
+
+    	    	__asm volatile("NOP");
     }
 }

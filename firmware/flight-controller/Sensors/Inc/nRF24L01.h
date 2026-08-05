@@ -149,6 +149,10 @@
 #define NRF24_STATUS_RX_DR            (1 << 6)
 
 
+
+    
+
+
 /* =========================================================
  * FIFO_STATUS Register Bits
  * ========================================================= */
@@ -215,6 +219,17 @@ typedef enum
     NRF24_NO_DATA = 0,
     NRF24_DATA_AVAILABLE = 1
 } NRF24_DataStatus_t;
+
+
+/* =========================================================
+ * Data Rate 
+ * ========================================================= */
+typedef enum
+{
+    NRF24_DATA_RATE_1MBPS = 0,
+    NRF24_DATA_RATE_2MBPS,
+    NRF24_DATA_RATE_250KBPS
+} NRF24_DataRate_t;
 
 
 /* =========================================================
@@ -389,7 +404,23 @@ NRF24_DataStatus_t NRF24_IsDataAvailable(void);
 #endif /* NRF24L01_H_ */
 
 
+NRF24_Status_t NRF24_SetChannel(uint8_t channel);
 
+
+
+NRF24_Status_t NRF24_SetDataRate(NRF24_DataRate_t data_rate);
+
+
+
+
+NRF24_Status_t NRF24_SetPayloadSize(uint8_t pipe, uint8_t payload_size);
+
+
+NRF24_Status_t NRF24_OpenReadingPipe0(const uint8_t *address, uint8_t address_length);
+
+NRF24_Status_t NRF24_FlushRX(void);
+
+NRF24_Status_t NRF24_FlushTX(void);
 
 
 

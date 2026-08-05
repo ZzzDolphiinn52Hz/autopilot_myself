@@ -178,7 +178,7 @@ NRF24_Status_t NRF24_WriteRegister( uint8_t reg, uint8_t value, uint8_t *status)
     spi_status = SPI_transfer_byte(
         NRF24_CMD_W_REGISTER |
         (reg & NRF24_REGISTER_MASK),
-        &received_status
+        NULL
     );
 
     if (spi_status != SPI_OK)
@@ -193,7 +193,7 @@ NRF24_Status_t NRF24_WriteRegister( uint8_t reg, uint8_t value, uint8_t *status)
         return NRF24_SPI_ERROR;
     }
 
-    spi_status = SPI_transfer_byte(value, NULL);
+    spi_status = SPI_transfer_byte(value, &received_status);
 
     NRF24_CSN_High();
 
@@ -275,7 +275,7 @@ NRF24_Status_t NRF24_ReadRegisterMulti( uint8_t reg, uint8_t *data, uint8_t leng
 NRF24_Status_t NRF24_WriteRegisterMulti( uint8_t reg, const uint8_t *data, uint8_t length, uint8_t *status)
 {
     uint8_t received_status;
-    uint8_t received_dummy;
+   // uint8_t received_dummy;
     uint8_t i;
 
     if ((data == NULL) || (length == 0U))
@@ -297,7 +297,7 @@ NRF24_Status_t NRF24_WriteRegisterMulti( uint8_t reg, const uint8_t *data, uint8
      */
     if (SPI_transfer_byte(
             NRF24_CMD_W_REGISTER | reg,
-            &received_status
+            NULL
         ) != SPI_OK)
     {
         NRF24_CSN_High();
@@ -310,7 +310,7 @@ NRF24_Status_t NRF24_WriteRegisterMulti( uint8_t reg, const uint8_t *data, uint8
      */
     for (i = 0U; i < length; i++)
     {
-        if (SPI_transfer_byte( data[i],&received_dummy) != SPI_OK)
+        if (SPI_transfer_byte( data[i],&received_status) != SPI_OK)
         {
             NRF24_CSN_High();
             return NRF24_ERROR;
@@ -373,7 +373,7 @@ NRF24_Status_t NRF24_ReadPayload(uint8_t *data, uint8_t length,uint8_t *status)
 NRF24_Status_t NRF24_WritePayload(const uint8_t *data, uint8_t length, uint8_t *status)
 {
     uint8_t received_status;
-    uint8_t received_dummy;
+   // uint8_t received_dummy;
     uint8_t i;
 
     if ((data == NULL) || (length == 0U) || (length > 32U))
@@ -386,7 +386,7 @@ NRF24_Status_t NRF24_WritePayload(const uint8_t *data, uint8_t length, uint8_t *
 
 
 
-    if (SPI_transfer_byte( NRF24_CMD_W_TX_PAYLOAD , &received_status ) != SPI_OK)
+    if (SPI_transfer_byte( NRF24_CMD_W_TX_PAYLOAD ,NULL ) != SPI_OK)
     {
         NRF24_CSN_High();
         return NRF24_ERROR;
@@ -395,7 +395,7 @@ NRF24_Status_t NRF24_WritePayload(const uint8_t *data, uint8_t length, uint8_t *
 
     for (i = 0U; i < length; i++)
     {
-        if (SPI_transfer_byte( data[i],&received_dummy) != SPI_OK)
+        if (SPI_transfer_byte( data[i],&received_status) != SPI_OK)
         {
             NRF24_CSN_High();
             return NRF24_ERROR;
@@ -427,3 +427,152 @@ if ((fifo_status & NRF24_FIFO_RX_EMPTY) == 0U)
 }
  return NRF24_NO_DATA;
 }
+
+
+NRF24_Status_t NRF24_SetChannel(uint8_t channel)
+{
+    if (channel > NRF24_MAX_CHANNEL)
+    {
+        return NRF24_INVALID_PARAM;
+    }
+
+    return NRF24_WriteRegister(
+        NRF24_REG_RF_CH,
+        channel,
+        NULL
+    );
+}
+
+NRF24_Status_t NRF24_SetDataRate(NRF24_DataRate_t data_rate)
+{
+    NRF24_Status_t result;
+    uint8_t rf_setup;
+
+    result = NRF24_ReadRegister(
+        NRF24_REG_RF_SETUP,
+        &rf_setup,
+        NULL
+    );
+
+    if (result != NRF24_OK)
+    {
+        return result;
+    }
+
+    /*
+     * Xóa hai bit RF_DR_LOW và RF_DR_HIGH.
+     */
+    rf_setup &= (uint8_t)~(
+        NRF24_RF_SETUP_RF_DR_LOW |
+        NRF24_RF_SETUP_RF_DR_HIGH
+    );
+
+    switch (data_rate)
+    {
+        case NRF24_DATA_RATE_1MBPS:
+            /* Cả hai bit bằng 0 */
+            break;
+
+        case NRF24_DATA_RATE_2MBPS:
+            rf_setup |= NRF24_RF_SETUP_RF_DR_HIGH;
+            break;
+
+        case NRF24_DATA_RATE_250KBPS:
+            rf_setup |= NRF24_RF_SETUP_RF_DR_LOW;
+            break;
+
+        default:
+            return NRF24_INVALID_PARAM;
+    }
+
+    return NRF24_WriteRegister(
+        NRF24_REG_RF_SETUP,
+        rf_setup,
+        NULL
+    );
+}
+
+
+NRF24_Status_t NRF24_SetPayloadSize(uint8_t pipe, uint8_t payload_size)
+{
+    if ((pipe > 5U) ||
+        (payload_size == 0U) ||
+        (payload_size > NRF24_MAX_PAYLOAD_SIZE))
+    {
+        return NRF24_INVALID_PARAM;
+    }
+
+    return NRF24_WriteRegister((uint8_t)(NRF24_REG_RX_PW_P0 + pipe), payload_size,NULL);
+}
+
+
+NRF24_Status_t NRF24_OpenReadingPipe0(const uint8_t *address, uint8_t address_length)
+{
+    NRF24_Status_t result;
+    uint8_t en_rxaddr;
+
+    if ((address == NULL) ||
+        (address_length < 3U) ||
+        (address_length > 5U))
+    {
+        return NRF24_INVALID_PARAM;
+    }
+
+    /*
+     * Ghi địa chỉ đầy đủ cho pipe 0.
+     */
+    result = NRF24_WriteRegisterMulti(
+        NRF24_REG_RX_ADDR_P0,
+        address,
+        address_length,
+        NULL
+    );
+
+    if (result != NRF24_OK)
+    {
+        return result;
+    }
+
+    /*
+     * Bật pipe 0 trong EN_RXADDR.
+     */
+    result = NRF24_ReadRegister(
+        NRF24_REG_EN_RXADDR,
+        &en_rxaddr,
+        NULL
+    );
+
+    if (result != NRF24_OK)
+    {
+        return result;
+    }
+
+    en_rxaddr |= (1U << 0);
+
+    return NRF24_WriteRegister(
+        NRF24_REG_EN_RXADDR,
+        en_rxaddr,
+        NULL
+    );
+}
+
+
+NRF24_Status_t NRF24_FlushRX(void)
+{
+    return NRF24_SendCommand(
+        NRF24_CMD_FLUSH_RX,
+        NULL
+    );
+}
+
+
+NRF24_Status_t NRF24_ClearInterrupts(void)
+{
+    return NRF24_WriteRegister(
+        NRF24_REG_STATUS,
+        (NRF24_STATUS_RX_DR | NRF24_STATUS_TX_DS | NRF24_STATUS_MAX_RT),
+        NULL
+    );
+}
+
+
