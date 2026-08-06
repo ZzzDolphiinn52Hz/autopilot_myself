@@ -1,35 +1,76 @@
-#include "delay.h"
-#include "icm42688.h"
-#include "clock.h"
+#include <stdint.h>
 
-volatile float accel_x_g = 0.0f;
-volatile float accel_y_g = 0.0f;
-volatile float accel_z_g = 0.0f; // gia toc
-volatile float gyro_x_dps = 0.0f;
-volatile float gyro_y_dps = 0.0f;
-volatile float gyro_z_dps = 0.0f; // toc do goc
-volatile float temperature_c = 0.0f;
+#include "spi.h"
+#include "delay.h"
+#include "nRF24L01.h"
+
+typedef struct
+{
+    uint16_t throttle;
+    uint16_t yaw;
+    uint16_t pitch;
+    uint16_t roll;
+} ControlPacket_t;
+
+static const uint8_t rx_address[5] =
+{
+    'D', 'R', 'O', 'N', 'E'
+};
+
+
+
+volatile ControlPacket_t receive_packet;
+
+volatile NRF24_Status_t init_result;
+
+volatile NRF24_Status_t receive_result;
+
+extern uint8_t fifo_status;
+
+volatile uint32_t debug_mark = 0;
+
+    volatile uint8_t config_debug;
+    volatile uint8_t rf_ch_debug;
+    volatile uint8_t rf_setup_debug;
+    volatile uint8_t en_aa_debug;
+    volatile uint8_t en_rxaddr_debug;
+    volatile uint8_t payload_width_debug;
+
+    volatile uint8_t rx_addr_p0_debug[5];
 
 int main(void)
 {
-    clock_init();
-    delay_init();
-    ICM42688_Init();
+   
 
-    while (1)
-    {
-        ICM42688_Data_t sensor_data;
+	delay_init();
+    SPI_init();
+    NRF24_InitPins();
 
-        ICM42688_ReadSensorData(&sensor_data);
 
-        accel_x_g = sensor_data.accel_x_g;
-        accel_y_g = sensor_data.accel_y_g;
-        accel_z_g = sensor_data.accel_z_g;
-        gyro_x_dps = sensor_data.gyro_x_dps;
-        gyro_y_dps = sensor_data.gyro_y_dps;
-        gyro_z_dps = sensor_data.gyro_z_dps;
-        temperature_c = sensor_data.temperature_c;
+    init_result = NRF24_InitReceiver(
+           rx_address,
+           sizeof(rx_address),
+           sizeof(ControlPacket_t)
+       );
 
-        delay_ms(10);
-    }
+       if (init_result != NRF24_OK)
+       {
+           while (1)
+           {
+               __asm volatile("NOP");
+           }
+       }
+
+       while (1)
+       {
+           receive_result = NRF24_Receive(
+               (uint8_t *)&receive_packet,
+               sizeof(receive_packet)
+           );
+
+           if (receive_result == NRF24_OK)
+           {
+               __asm volatile("NOP");
+           }
+       }
 }
