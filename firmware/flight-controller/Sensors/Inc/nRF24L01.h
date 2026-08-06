@@ -4,14 +4,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-
-
 /* nRF24 Pin Definition */
 
 #define NRF24_CE_PIN      0
 #define NRF24_CSN_PIN     4
-
-
 
 /* =========================================================
  * nRF24L01+ SPI Commands
@@ -148,11 +144,6 @@
 #define NRF24_STATUS_TX_DS            (1 << 5)
 #define NRF24_STATUS_RX_DR            (1 << 6)
 
-
-
-    
-
-
 /* =========================================================
  * FIFO_STATUS Register Bits
  * ========================================================= */
@@ -208,7 +199,8 @@ typedef enum
     NRF24_ERROR,
     NRF24_SPI_ERROR,
     NRF24_TIMEOUT,
-    NRF24_INVALID_PARAM
+    NRF24_INVALID_PARAM,
+    NRF24_NO_DATAA
 } NRF24_Status_t;
 
 /* =========================================================
@@ -237,42 +229,30 @@ typedef enum
  * ========================================================= */
 
 
-
 /**
  * @brief Khởi tạo các chân CE và CSN của nRF24L01+.
  */
 void NRF24_InitPins(void);
-
-
 
 /**
  * @brief Đưa chân CE xuống mức thấp.
  */
 void NRF24_CE_Low(void);
 
-
-
 /**
  * @brief Đưa chân CE lên mức cao.
  */
 void NRF24_CE_High(void);
-
-
 
 /**
  * @brief Đưa chân CSN xuống mức thấp.
  */
 void NRF24_CSN_Low(void);
 
-
-
 /**
  * @brief Đưa chân CSN lên mức cao.
  */
 void NRF24_CSN_High(void);
-
-
-
 
 /**
  * @brief Đọc một thanh ghi 1 byte.
@@ -285,8 +265,6 @@ void NRF24_CSN_High(void);
  */
 NRF24_Status_t NRF24_ReadRegister(uint8_t reg, uint8_t *value, uint8_t *status);
 
-
-
 /**
  * @brief Ghi một giá trị 1 byte vào thanh ghi.
  *
@@ -297,8 +275,6 @@ NRF24_Status_t NRF24_ReadRegister(uint8_t reg, uint8_t *value, uint8_t *status);
  * @return NRF24_Status_t
  */
 NRF24_Status_t NRF24_WriteRegister(uint8_t reg, uint8_t value, uint8_t *status);
-
-
 
 /**
  * @brief Đọc nhiều byte từ một thanh ghi.
@@ -314,9 +290,6 @@ NRF24_Status_t NRF24_WriteRegister(uint8_t reg, uint8_t value, uint8_t *status);
  */
 NRF24_Status_t NRF24_ReadRegisterMulti(uint8_t reg, uint8_t *data, uint8_t length, uint8_t *status);
 
-
-
-
 /**
  * @brief Ghi nhiều byte vào một thanh ghi.
  *
@@ -331,9 +304,6 @@ NRF24_Status_t NRF24_ReadRegisterMulti(uint8_t reg, uint8_t *data, uint8_t lengt
  */
 NRF24_Status_t NRF24_WriteRegisterMulti( uint8_t reg, const uint8_t *data, uint8_t length, uint8_t *status);
 
-
-
-
 /**
  * @brief Gửi một command không kèm dữ liệu.
  *
@@ -345,12 +315,6 @@ NRF24_Status_t NRF24_WriteRegisterMulti( uint8_t reg, const uint8_t *data, uint8
  * @return NRF24_Status_t
  */
 NRF24_Status_t NRF24_SendCommand(uint8_t command, uint8_t *status);
-
-
-
-
-
-
 
 /**
  * @brief Đọc một payload từ packet đầu tiên trong RX FIFO.
@@ -400,28 +364,26 @@ NRF24_Status_t NRF24_WritePayload(const uint8_t *data, uint8_t length, uint8_t *
  */
 NRF24_DataStatus_t NRF24_IsDataAvailable(void);
 
-
-#endif /* NRF24L01_H_ */
-
-
 NRF24_Status_t NRF24_SetChannel(uint8_t channel);
-
-
 
 NRF24_Status_t NRF24_SetDataRate(NRF24_DataRate_t data_rate);
 
-
-
-
 NRF24_Status_t NRF24_SetPayloadSize(uint8_t pipe, uint8_t payload_size);
-
 
 NRF24_Status_t NRF24_OpenReadingPipe0(const uint8_t *address, uint8_t address_length);
 
 NRF24_Status_t NRF24_FlushRX(void);
 
-NRF24_Status_t NRF24_FlushTX(void);
+NRF24_Status_t NRF24_ClearInterrupts(void);
 
+NRF24_Status_t NRF24_StartListening(void);
+
+NRF24_Status_t NRF24_Receive(uint8_t *data, uint8_t length);
+
+NRF24_Status_t NRF24_InitReceiver(const uint8_t *address, uint8_t address_length, uint8_t payload_size);
+
+
+#endif /* NRF24L01_H_ */
 
 
 

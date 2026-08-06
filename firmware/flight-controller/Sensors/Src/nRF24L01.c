@@ -3,8 +3,7 @@
 #include "spi.h"
 #include "delay.h"
 
-
-
+ uint8_t fifo_status;
 
 void NRF24_InitPins()
 {
@@ -67,7 +66,6 @@ void NRF24_CSN_High(void)
 {
     *GPIOA_BSRR = (1U << NRF24_CSN_PIN);
 }
-
 
 NRF24_Status_t NRF24_SendCommand( uint8_t command, uint8_t *status)
 {
@@ -421,7 +419,7 @@ NRF24_Status_t NRF24_WritePayload(const uint8_t *data, uint8_t length, uint8_t *
 
 NRF24_DataStatus_t NRF24_IsDataAvailable(void)
 {
-uint8_t fifo_status;
+
 
 if(NRF24_ReadRegister(NRF24_REG_FIFO_STATUS, &fifo_status, NULL) != NRF24_OK)
 {
@@ -435,10 +433,9 @@ if ((fifo_status & NRF24_FIFO_RX_EMPTY) == 0U)
  return NRF24_NO_DATA;
 }
 
-
 NRF24_Status_t NRF24_SetChannel(uint8_t channel)
 {
-    if (channel > NRF24_MAX_CHANNEL)
+    if (channel > NRF24_MAX_RF_CHANNEL)
     {
         return NRF24_INVALID_PARAM;
     }
@@ -499,7 +496,6 @@ NRF24_Status_t NRF24_SetDataRate(NRF24_DataRate_t data_rate)
     );
 }
 
-
 NRF24_Status_t NRF24_SetPayloadSize(uint8_t pipe, uint8_t payload_size)
 {
     if ((pipe > 5U) ||
@@ -511,7 +507,6 @@ NRF24_Status_t NRF24_SetPayloadSize(uint8_t pipe, uint8_t payload_size)
 
     return NRF24_WriteRegister((uint8_t)(NRF24_REG_RX_PW_P0 + pipe), payload_size,NULL);
 }
-
 
 NRF24_Status_t NRF24_OpenReadingPipe0(const uint8_t *address, uint8_t address_length)
 {
@@ -563,7 +558,6 @@ NRF24_Status_t NRF24_OpenReadingPipe0(const uint8_t *address, uint8_t address_le
     );
 }
 
-
 NRF24_Status_t NRF24_FlushRX(void)
 {
     return NRF24_SendCommand(
@@ -571,7 +565,6 @@ NRF24_Status_t NRF24_FlushRX(void)
         NULL
     );
 }
-
 
 NRF24_Status_t NRF24_ClearInterrupts(void)
 {
@@ -581,5 +574,163 @@ NRF24_Status_t NRF24_ClearInterrupts(void)
         NULL
     );
 }
+
+NRF24_Status_t NRF24_StartListening(void)
+{
+    NRF24_Status_t result;
+    uint8_t config;
+
+    /*
+     * Dừng radio trước khi đổi trạng thái.
+     */
+    NRF24_CE_Low();
+
+    result = NRF24_ReadRegister(
+        NRF24_REG_CONFIG,
+        &config,
+        NULL
+    );
+
+    if (result != NRF24_OK)
+    {
+        return result;
+    }
+
+    /*
+     * PRIM_RX = 1: chế độ nhận.
+     * PWR_UP  = 1: bật radio.
+     * EN_CRC  = 1 và CRCO = 1: CRC 2 byte.
+     */
+    config |= NRF24_CONFIG_PRIM_RX;
+    config |= NRF24_CONFIG_PWR_UP;
+    config |= NRF24_CONFIG_EN_CRC;
+    config |= NRF24_CONFIG_CRCO;
+
+    result = NRF24_WriteRegister(
+        NRF24_REG_CONFIG,
+        config,
+        NULL
+    );
+
+    if (result != NRF24_OK)
+    {
+        return result;
+    }
+
+    /*
+     * Power Down -> Standby-I cần khoảng 1.5 ms.
+     */
+    delay_ms(2U);
+
+    result = NRF24_ClearInterrupts();
+
+    if (result != NRF24_OK)
+    {
+        return result;
+    }
+
+    /*
+     * CE HIGH liên tục để radio ở PRX.
+     */
+    NRF24_CE_High();
+
+    /*
+     * Standby-I -> RX mode khoảng 130 us.
+     */
+    delay_us(150U);
+
+    return NRF24_OK;
+}
+
+NRF24_Status_t NRF24_Receive(uint8_t *data, uint8_t length)
+{
+    NRF24_Status_t result;
+
+    if ((data == NULL) ||
+        (length == 0U) ||
+        (length > NRF24_MAX_PAYLOAD_SIZE))
+    {
+        return NRF24_INVALID_PARAM;
+    }
+
+    if (NRF24_IsDataAvailable() != NRF24_DATA_AVAILABLE)
+    {
+        return NRF24_NO_DATAA;
+    }
+
+    result = NRF24_ReadPayload(data, length, NULL);
+
+    if (result != NRF24_OK)
+    {
+        return result;
+    }
+
+    /*
+     * Xóa cờ đã nhận dữ liệu.
+     */
+    return NRF24_WriteRegister(
+        NRF24_REG_STATUS,
+        NRF24_STATUS_RX_DR,
+        NULL
+    );
+}
+
+NRF24_Status_t NRF24_InitReceiver(const uint8_t *address, uint8_t address_length, uint8_t payload_size)
+{
+    NRF24_Status_t result;
+
+    NRF24_CE_Low();
+    NRF24_CSN_High();
+
+    delay_ms(100U);
+
+    result = NRF24_SetChannel(40U);
+
+    if (result != NRF24_OK)
+    {
+        return result;
+    }
+
+    result = NRF24_SetDataRate(NRF24_DATA_RATE_1MBPS);
+
+    if (result != NRF24_OK)
+    {
+        return result;
+    }
+
+    result = NRF24_OpenReadingPipe0(address,address_length);
+
+    if (result != NRF24_OK)
+    {
+        return result;
+    }
+
+    result = NRF24_SetPayloadSize( 0U,payload_size);
+
+    if (result != NRF24_OK)
+    {
+        return result;
+    }
+
+    result = NRF24_FlushRX();
+
+    if (result != NRF24_OK)
+    {
+        return result;
+    }
+
+    result = NRF24_ClearInterrupts();
+
+    if (result != NRF24_OK)
+    {
+        return result;
+    }
+
+    return NRF24_StartListening();
+}
+
+
+
+
 
 
