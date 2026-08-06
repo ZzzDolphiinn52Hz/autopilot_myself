@@ -7,8 +7,6 @@
 #define GPIOA_ADDR      0x40020000
 #define SPI1_ADDR       0x40013000
 
-
-
 #define GPIOA_MODER     ((volatile uint32_t *)(GPIOA_ADDR + 0x00))
 #define GPIOA_OTYPER    ((volatile uint32_t *)(GPIOA_ADDR + 0x04))
 #define GPIOA_OSPEEDR   ((volatile uint32_t *)(GPIOA_ADDR + 0x08))
