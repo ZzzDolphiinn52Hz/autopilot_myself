@@ -89,9 +89,6 @@ typedef struct
 } ICM42688_Data_t;
 
 ICM42688_StatusTypeDef ICM42688_Init(void);
-ICM42688_StatusTypeDef ICM42688_ReadWhoAmI(uint8_t *who_am_i);
-ICM42688_StatusTypeDef ICM42688_SetAccelConfig(ICM42688_AccelFullScale_t full_scale, ICM42688_ODR_t odr);
-ICM42688_StatusTypeDef ICM42688_SetGyroConfig(ICM42688_GyroFullScale_t full_scale, ICM42688_ODR_t odr);
 ICM42688_StatusTypeDef ICM42688_ReadRawData(ICM42688_RawData_t *raw_data);
 ICM42688_StatusTypeDef ICM42688_ConvertRawToSensorData(const ICM42688_RawData_t *raw_data, ICM42688_Data_t *sensor_data);
 ICM42688_StatusTypeDef ICM42688_ReadSensorData(ICM42688_Data_t *sensor_data);

@@ -1,6 +1,7 @@
 #include "icm42688.h"
 #include "delay.h"
 #include "spi.h"
+#include <gpio.h>
 
 #define ICM42688_BANK0                0x00
 #define ICM42688_SOFT_RESET           0x01
@@ -9,6 +10,9 @@
 
 static ICM42688_AccelFullScale_t accel_full_scale = ICM42688_ACCEL_FS_16G;
 static ICM42688_GyroFullScale_t gyro_full_scale = ICM42688_GYRO_FS_2000DPS;
+static ICM42688_StatusTypeDef ICM42688_ReadWhoAmI(uint8_t *who_am_i);
+static ICM42688_StatusTypeDef ICM42688_SetAccelConfig(ICM42688_AccelFullScale_t full_scale, ICM42688_ODR_t odr);
+static ICM42688_StatusTypeDef ICM42688_SetGyroConfig(ICM42688_GyroFullScale_t full_scale, ICM42688_ODR_t odr);
 
 volatile int16_t debug_icm42688_accel_x;
 volatile int16_t debug_icm42688_accel_y;
@@ -239,7 +243,7 @@ ICM42688_StatusTypeDef ICM42688_Init(void)
     return ICM42688_OK;
 }
 
-ICM42688_StatusTypeDef ICM42688_ReadWhoAmI(uint8_t *who_am_i)
+static ICM42688_StatusTypeDef ICM42688_ReadWhoAmI(uint8_t *who_am_i)
 {
     if (who_am_i == 0)
     {
@@ -260,7 +264,7 @@ ICM42688_StatusTypeDef ICM42688_ReadWhoAmI(uint8_t *who_am_i)
     return ICM42688_OK;
 }
 
-ICM42688_StatusTypeDef ICM42688_SetAccelConfig(ICM42688_AccelFullScale_t full_scale, ICM42688_ODR_t odr)
+static ICM42688_StatusTypeDef ICM42688_SetAccelConfig(ICM42688_AccelFullScale_t full_scale, ICM42688_ODR_t odr)
 {
     uint8_t config;
 
@@ -280,7 +284,7 @@ ICM42688_StatusTypeDef ICM42688_SetAccelConfig(ICM42688_AccelFullScale_t full_sc
     return ICM42688_OK;
 }
 
-ICM42688_StatusTypeDef ICM42688_SetGyroConfig(ICM42688_GyroFullScale_t full_scale, ICM42688_ODR_t odr)
+static ICM42688_StatusTypeDef ICM42688_SetGyroConfig(ICM42688_GyroFullScale_t full_scale, ICM42688_ODR_t odr)
 {
     uint8_t config;
 

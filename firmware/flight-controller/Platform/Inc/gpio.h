@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+extern volatile uint32_t *GPIOA_BSRR ;
+extern volatile uint32_t *GPIOB_BSRR ;
+
 typedef enum
 {
     GPIO_INPUT = 0b00,

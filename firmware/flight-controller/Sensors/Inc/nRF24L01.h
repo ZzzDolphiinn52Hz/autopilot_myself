@@ -6,8 +6,8 @@
 
 /* nRF24 Pin Definition */
 
-#define NRF24_CE_PIN      0
-#define NRF24_CSN_PIN     4
+#define NRF24_CE_PIN      15
+#define NRF24_CSN_PIN     0
 
 /* =========================================================
  * nRF24L01+ SPI Commands
