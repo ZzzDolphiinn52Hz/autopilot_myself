@@ -2,6 +2,7 @@
 #include "clock.h"
 #include "spi.h"
 #include "delay.h"
+#include <gpio.h>
 
  uint8_t fifo_status;
 
@@ -9,41 +10,12 @@ void NRF24_InitPins()
 {
   clock_enable_AHB1(GPIOA_peripheral);
 
-    /* CE Output */
+    GPIOA_CONFIG( P0, GPIO_OUTPUT, GPIO_PUSHPULL, GPIO_FAST, GPIO_NOPULL, 0, 0, 0); //CE_NRF24L01
+    GPIOA_CONFIG( P4, GPIO_OUTPUT, GPIO_PUSHPULL, GPIO_FAST, GPIO_NOPULL, 0, 0, 0); //CSN_NRF24L01
 
-    *GPIOA_MODER &= ~(0b11 << (NRF24_CE_PIN * 2));
-    *GPIOA_MODER |=  (0b01 << (NRF24_CE_PIN * 2));
-
-    /* CSN Output */
-
-    *GPIOA_MODER &= ~(0b11 << (NRF24_CSN_PIN * 2));
-    *GPIOA_MODER |=  (0b01 << (NRF24_CSN_PIN * 2));
-
-    /* Push Pull */
-
-    *GPIOA_OTYPER &= ~((1U << NRF24_CE_PIN) |
-                       (1U << NRF24_CSN_PIN));
-
-    /* Medium/Fast speed */
-
-    *GPIOA_OSPEEDR &= ~((0b11 << (NRF24_CE_PIN * 2)) |
-                        (0b11 << (NRF24_CSN_PIN * 2)));
-
-    *GPIOA_OSPEEDR |=  ((0b10 << (NRF24_CE_PIN * 2)) |
-                        (0b10 << (NRF24_CSN_PIN * 2)));
-
-    /* No Pull */
-
-    *GPIOA_PUPDR &= ~((0b11 << (NRF24_CE_PIN * 2)) |
-                      (0b11 << (NRF24_CSN_PIN * 2)));
-
-    /* Idle state */
 
     NRF24_CE_Low();
     NRF24_CSN_High();
-
-
-
 }
 
 void NRF24_CE_Low(void)

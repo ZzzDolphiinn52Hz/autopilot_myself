@@ -6,13 +6,7 @@
 
 #define SPI1_ADDR       0x40013000
 
-static volatile uint32_t *SPI1_CR1      = (volatile uint32_t *)(SPI1_ADDR + 0x00);
-static volatile uint32_t *SPI1_CR2      = (volatile uint32_t *)(SPI1_ADDR + 0x04);
-static volatile uint32_t *SPI1_SR       = (volatile uint32_t *)(SPI1_ADDR + 0x08);
-static volatile uint32_t *SPI1_DR       = (volatile uint32_t *)(SPI1_ADDR + 0x0C);
-static volatile uint32_t *SPI1_CRCPR    = (volatile uint32_t *)(SPI1_ADDR + 0x10);
-static volatile uint32_t *SPI1_RXCRCR   = (volatile uint32_t *)(SPI1_ADDR + 0x14);
-static volatile uint32_t *SPI1_TXCRCR   = (volatile uint32_t *)(SPI1_ADDR + 0x18);
+
 
 
 #define SPI_CR1_CPHA        (1 << 0)
