@@ -94,7 +94,7 @@ void SPI_init(void)
 
     *SPI1_CR1 &= ~SPI_CR1_CPOL; // cpol =0
     *SPI1_CR1 &= ~SPI_CR1_CPHA; // cpha=0
-    // => clocl low, lay mau canh dau
+    // => clock low, lay mau canh dau
 
     *SPI1_CR1 &= ~SPI_CR1_DFF; // 8bit 
     *SPI1_CR1 &= ~SPI_CR1_LSBFIRST; // Msb first
@@ -206,7 +206,6 @@ SPI_Status_t SPI_transmit_receive(const uint8_t *tx_data, uint8_t *rx_data, uint
             return status;
         }
     }
-
     return SPI_OK;
 }
 
