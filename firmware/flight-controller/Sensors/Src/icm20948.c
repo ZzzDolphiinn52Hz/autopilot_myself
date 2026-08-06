@@ -1,6 +1,7 @@
 #include "icm20948.h"
 #include "delay.h"
 #include "spi.h"
+#include <gpio.h>
 
 #define ICM20948_BANK0                 0x00
 #define ICM20948_BANK2                 0x02

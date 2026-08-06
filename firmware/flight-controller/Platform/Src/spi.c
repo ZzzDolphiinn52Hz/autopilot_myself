@@ -2,12 +2,15 @@
 #include "clock.h"
 #include <gpio.h>
 
-
-
 #define SPI1_ADDR       0x40013000
 
-
-
+#define SPI1_CR1        ((volatile uint32_t *)(SPI1_ADDR + 0x00))
+#define SPI1_CR2        ((volatile uint32_t *)(SPI1_ADDR + 0x04))
+#define SPI1_SR         ((volatile uint32_t *)(SPI1_ADDR + 0x08))
+#define SPI1_DR         ((volatile uint32_t *)(SPI1_ADDR + 0x0C))
+#define SPI1_CRCPR      ((volatile uint32_t *)(SPI1_ADDR + 0x10))
+#define SPI1_RXCRCR     ((volatile uint32_t *)(SPI1_ADDR + 0x14))
+#define SPI1_TXCRCR     ((volatile uint32_t *)(SPI1_ADDR + 0x18))
 
 #define SPI_CR1_CPHA        (1 << 0)
 #define SPI_CR1_CPOL        (1 << 1)
