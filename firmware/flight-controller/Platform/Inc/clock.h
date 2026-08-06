@@ -66,5 +66,3 @@ void clock_init(void);
 
 #endif /* INC_CLOCK_H_ */
 
-
-//dfsfdfsdfdsfs

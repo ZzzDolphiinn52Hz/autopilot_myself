@@ -1,7 +1,7 @@
 #include "pwm.h"
 #include "clock.h"
+#include <gpio.h>
 
-#define GPIOB_ADDR 0x40020400UL
 #define TIM4_ADDR  0x40000800UL
 
 uint16_t pwm_clamp_pulse(uint16_t pulse_width)
@@ -21,13 +21,6 @@ uint16_t pwm_clamp_pulse(uint16_t pulse_width)
 
 void pwm_init(void)
 {
-    static volatile uint32_t* GPIOB_MODER   = (volatile uint32_t*)(GPIOB_ADDR + 0x00UL);
-    static volatile uint32_t* GPIOB_OTYPER  = (volatile uint32_t*)(GPIOB_ADDR + 0x04UL);
-    static volatile uint32_t* GPIOB_OSPEEDR = (volatile uint32_t*)(GPIOB_ADDR + 0x08UL);
-    static volatile uint32_t* GPIOB_PUPDR   = (volatile uint32_t*)(GPIOB_ADDR + 0x0CUL);
-    static volatile uint32_t* GPIOB_AFRL    = (volatile uint32_t*)(GPIOB_ADDR + 0x20UL);
-    static volatile uint32_t* GPIOB_AFRH    = (volatile uint32_t*)(GPIOB_ADDR + 0x24UL);
-
     static volatile uint32_t* TIM4_CR1   = (volatile uint32_t*)(TIM4_ADDR + 0x00UL);
     static volatile uint32_t* TIM4_EGR   = (volatile uint32_t*)(TIM4_ADDR + 0x14UL);
     static volatile uint32_t* TIM4_CCMR1 = (volatile uint32_t*)(TIM4_ADDR + 0x18UL);
@@ -46,24 +39,11 @@ void pwm_init(void)
     *TIM4_CR1 = 0; // tat timer
 
     // Cấu hình PB6, PB7, PB8, PB9 (Alternate Function mode)
-    *GPIOB_MODER &= ~((0b11 << 12) | (0b11 << 14) | (0b11 << 16) | (0b11 << 18));
-    *GPIOB_MODER |=  ((0b10 << 12) | (0b10 << 14) | (0b10 << 16) | (0b10 << 18));
 
-    *GPIOB_OTYPER &= ~((1 << 6) | (1 << 7) | (1 << 8) | (1 << 9)); // push - pull
-
-    *GPIOB_OSPEEDR &= ~((0b11 << 12) | (0b11 << 14) | (0b11 << 16) | (0b11 << 18));
-    *GPIOB_OSPEEDR |=  ((0b10 << 12) | (0b10 << 14) | (0b10 << 16) | (0b10 << 18)); // high speed
-
-    *GPIOB_PUPDR &= ~((0b11 << 12) | (0b11 << 14) | (0b11 << 16) | (0b11 << 18)); // no pull-up, pull-down
-
-    // AF2 cho TIM4 trên PB6, PB7 (thuộc AFRL)
-    *GPIOB_AFRL &= ~((0xF << 24) | (0xF << 28));
-    *GPIOB_AFRL |=  ((2 << 24) | (2 << 28));
-
-    // AF2 cho TIM4 trên PB8, PB9 (thuộc AFRH)
-    *GPIOB_AFRH &= ~((0xF << 0) | (0xF << 4));
-    *GPIOB_AFRH |=  ((2 << 0) | (2 << 4));
-
+    GPIOB_CONFIG( P6,  GPIO_ALTERNATE,  GPIO_PUSHPULL,  GPIO_FAST,  GPIO_NOPULL,  0,  GPIO_AF2, 0);
+    GPIOB_CONFIG( P7,  GPIO_ALTERNATE,  GPIO_PUSHPULL,  GPIO_FAST,  GPIO_NOPULL,  0,  GPIO_AF2, 0);
+    GPIOB_CONFIG( P8,  GPIO_ALTERNATE,  GPIO_PUSHPULL,  GPIO_FAST,  GPIO_NOPULL,  0,  0, GPIO_AF2);
+    GPIOB_CONFIG( P9,  GPIO_ALTERNATE,  GPIO_PUSHPULL,  GPIO_FAST,  GPIO_NOPULL,  0,  0, GPIO_AF2);
     // Cấu hình TIM4
     *TIM4_PSC = 100 - 1; // 100MHz / 100 = 1MHz => 1cnt = 1us 
     *TIM4_ARR = 20000 - 1; // => 20000 cnt = 20ms

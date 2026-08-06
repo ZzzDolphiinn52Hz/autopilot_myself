@@ -1,14 +1,8 @@
 #include "uart6.h"
 #include "clock.h"
+#include <gpio.h>
 
-#define GPIOA_ADDR      0x40020000
 #define USART6_ADDR     0x40011400
-
-static volatile uint32_t *GPIOA_MODER   = (volatile uint32_t *)(GPIOA_ADDR + 0x00);
-static volatile uint32_t *GPIOA_OTYPER  = (volatile uint32_t *)(GPIOA_ADDR + 0x04);
-static volatile uint32_t *GPIOA_OSPEEDR = (volatile uint32_t *)(GPIOA_ADDR + 0x08);
-static volatile uint32_t *GPIOA_PUPDR   = (volatile uint32_t *)(GPIOA_ADDR + 0x0C);
-static volatile uint32_t *GPIOA_AFRH    = (volatile uint32_t *)(GPIOA_ADDR + 0x24);
 
 static volatile uint32_t *USART6_SR     = (volatile uint32_t *)(USART6_ADDR + 0x00);
 static volatile uint32_t *USART6_DR     = (volatile uint32_t *)(USART6_ADDR + 0x04);
@@ -35,19 +29,8 @@ void uart6_init(void)
     clock_enable_AHB1(GPIOA_peripheral);
     clock_enable_APB2(USART6_peripheral);
 
-    *GPIOA_MODER &= ~((0b11 << 22) | (0b11 << 24));
-    *GPIOA_MODER |=  ((0b10 << 22) | (0b10 << 24)); // PA11, PA12 alternate function
-
-    *GPIOA_OTYPER &= ~((1 << 11) | (1 << 12)); // push-pull
-
-    *GPIOA_OSPEEDR &= ~((0b11 << 22) | (0b11 << 24));
-    *GPIOA_OSPEEDR |=  ((0b10 << 22) | (0b10 << 24)); // fast speed
-
-    *GPIOA_PUPDR &= ~((0b11 << 22) | (0b11 << 24));
-    *GPIOA_PUPDR |=  ((0b01 << 22) | (0b01 << 24)); // pull up
-
-    *GPIOA_AFRH &= ~((0xF << 12) | (0xF << 16));
-    *GPIOA_AFRH |=  ((8 << 12) | (8 << 16)); // AF8 USART6
+    GPIOA_CONFIG(P11, GPIO_ALTERNATE, GPIO_PUSHPULL, GPIO_FAST, GPIO_NOPULL, 0, 0, GPIO_AF8); 
+    GPIOA_CONFIG(P12, GPIO_ALTERNATE, GPIO_PUSHPULL, GPIO_FAST, GPIO_PULLUP, 0, 0, GPIO_AF8); 
 
     *USART6_CR1 &= ~USART_CR1_UE;
     *USART6_CR2 = 0;
