@@ -40,6 +40,7 @@ volatile uint32_t debug_mark = 0;
 
 int main(void)
 {
+   
 
 	delay_init();
     SPI_init();

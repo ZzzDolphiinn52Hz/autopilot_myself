@@ -1,21 +1,8 @@
 #include "i2c.h"
 #include "clock.h"
+#include <gpio.h>
 
-#define GPIOA_ADDR      0x40020000
-#define GPIOB_ADDR      0x40020400
 #define I2C3_ADDR       0x40005C00
-
-static volatile uint32_t *GPIOA_MODER   = (volatile uint32_t *)(GPIOA_ADDR + 0x00);
-static volatile uint32_t *GPIOA_OTYPER  = (volatile uint32_t *)(GPIOA_ADDR + 0x04);
-static volatile uint32_t *GPIOA_OSPEEDR = (volatile uint32_t *)(GPIOA_ADDR + 0x08);
-static volatile uint32_t *GPIOA_PUPDR   = (volatile uint32_t *)(GPIOA_ADDR + 0x0C);
-static volatile uint32_t *GPIOA_AFRH    = (volatile uint32_t *)(GPIOA_ADDR + 0x24);
-
-static volatile uint32_t *GPIOB_MODER   = (volatile uint32_t *)(GPIOB_ADDR + 0x00);
-static volatile uint32_t *GPIOB_OTYPER  = (volatile uint32_t *)(GPIOB_ADDR + 0x04);
-static volatile uint32_t *GPIOB_OSPEEDR = (volatile uint32_t *)(GPIOB_ADDR + 0x08);
-static volatile uint32_t *GPIOB_PUPDR   = (volatile uint32_t *)(GPIOB_ADDR + 0x0C);
-static volatile uint32_t *GPIOB_AFRL    = (volatile uint32_t *)(GPIOB_ADDR + 0x20);
 
 static volatile uint32_t *I2C3_CR1      = (volatile uint32_t *)(I2C3_ADDR + 0x00);
 static volatile uint32_t *I2C3_CR2      = (volatile uint32_t *)(I2C3_ADDR + 0x04);
@@ -116,29 +103,12 @@ void i2c_init(void)
     clock_enable_APB1(I2C3_peripheral);
 
     // PA8 = I2C3_SCL (AF4), PB4 = I2C3_SDA (AF9), open-drain, pull-up.
-    *GPIOA_MODER &= ~(0b11 << 16);
-    *GPIOA_MODER |=  (0b10 << 16);
-    *GPIOA_OTYPER |= (1 << 8);
-    *GPIOA_OSPEEDR &= ~(0b11 << 16);
-    *GPIOA_OSPEEDR |=  (0b10 << 16);
-    *GPIOA_PUPDR &= ~(0b11 << 16);
-    *GPIOA_PUPDR |=  (0b01 << 16);
-    *GPIOA_AFRH &= ~(0xF << 0);
-    *GPIOA_AFRH |=  (4 << 0);
 
-    *GPIOB_MODER &= ~(0b11 << 8);
-    *GPIOB_MODER |=  (0b10 << 8);
-    *GPIOB_OTYPER |= (1 << 4);
-    *GPIOB_OSPEEDR &= ~(0b11 << 8);
-    *GPIOB_OSPEEDR |=  (0b10 << 8);
-    *GPIOB_PUPDR &= ~(0b11 << 8);
-    *GPIOB_PUPDR |=  (0b01 << 8);
-    *GPIOB_AFRL &= ~(0xF << 16);
-    *GPIOB_AFRL |=  (9 << 16);
+    GPIOA_CONFIG( P8,  GPIO_ALTERNATE,  GPIO_OPENDRAIN,  GPIO_FAST,  GPIO_PULLUP,  0,  0,  GPIO_AF4);
+    GPIOB_CONFIG( P4,  GPIO_ALTERNATE,  GPIO_OPENDRAIN,  GPIO_FAST,  GPIO_PULLUP,  0,  GPIO_AF9,  0);
 
     *I2C3_CR1 |= I2C_CR1_SWRST;
     *I2C3_CR1 &= ~I2C_CR1_SWRST;
-
     *I2C3_CR1 &= ~I2C_CR1_PE;
     *I2C3_CR2 = I2C_APB1_MHZ; // 50
     *I2C3_CCR = I2C_STANDARD_CCR; // 250
